@@ -1,0 +1,548 @@
+/* ============================================================================
+   UniPathway — Application Stylesheet
+   Drop-in stylesheet for the existing UniPathway React app. Targets the app's
+   own semantic classNames and plain HTML elements — no markup changes needed.
+   Import once at the app root:  import './styles/main.css';
+
+   Design system: deep academic blue (#1a3a6b) + warm gold (#c9a84c) on a calm
+   off-white canvas, Inter type, 8px radii, soft cool shadows.
+   Self-contained — all tokens live in :root below.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Brand */
+  --blue-900:#122a4f; --blue-800:#15315c; --blue-700:#1a3a6b; --blue-600:#244a82;
+  --blue-500:#2f5d9e; --blue-300:#8aa6cc; --blue-100:#dde6f2; --blue-50:#eef3f9;
+  --gold-700:#9c7f33; --gold-600:#b3923a; --gold-500:#c9a84c; --gold-300:#e0c986;
+  --gold-100:#f3e9cd; --gold-50:#faf4e3;
+  /* Neutrals */
+  --ink-900:#1c2530; --ink-700:#39424f; --ink-500:#5b6675; --ink-400:#828c9b;
+  --line-300:#d6dbe4; --line-200:#e3e7ee; --line-100:#eef1f6;
+  --paper:#ffffff; --canvas:#f8f9fb; --canvas-2:#f1f3f8;
+  /* Status */
+  --success-600:#2f7d5d; --success-50:#e6f3ed;
+  --danger-600:#b3402f; --danger-500:#cf5240; --danger-50:#fbeae7;
+  --info-600:#2f5d9e; --info-50:#e7eef9;
+  /* Aliases */
+  --primary:var(--blue-700); --primary-hover:var(--blue-800); --primary-active:var(--blue-900);
+  --accent:var(--gold-500); --accent-hover:var(--gold-600);
+  --font-sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --radius:8px; --radius-lg:12px; --radius-pill:999px;
+  --shadow-sm:0 1px 3px rgba(26,58,107,.08),0 1px 2px rgba(26,58,107,.04);
+  --shadow-md:0 4px 12px rgba(26,58,107,.10),0 2px 4px rgba(26,58,107,.05);
+  --shadow-lg:0 16px 40px rgba(18,42,79,.18);
+  --focus-ring:0 0 0 3px rgba(47,93,158,.35);
+  --container:1120px;
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-700);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--blue-600); text-decoration: none; }
+a:hover { color: var(--blue-800); text-decoration: underline; }
+ul { padding-left: 1.25rem; }
+
+/* ---------- Headings & text ---------- */
+h1, h2, h3, h4 { color: var(--ink-900); line-height: 1.2; font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: 1.875rem; font-weight: 700; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+p { color: var(--ink-700); text-wrap: pretty; }
+p[role="alert"], span[role="alert"] {
+  color: var(--danger-600);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ============================================================================
+   LAYOUT — Navbar / main / footer
+   ============================================================================ */
+.layout { min-height: 100vh; display: flex; flex-direction: column; }
+.layout > main { flex: 1; }
+
+/* Navbar = the bare <nav> rendered by Navbar.jsx inside .layout */
+.layout > nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 64px;
+  padding: 0 24px;
+  background: var(--blue-700);
+  box-shadow: var(--shadow-sm);
+  position: sticky; top: 0; z-index: 100;
+}
+.layout > nav a {
+  color: rgba(255,255,255,.82);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color .15s ease;
+}
+.layout > nav a:hover { color: #fff; }
+/* Brand wordmark = first link */
+.layout > nav a:first-child {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1875rem;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+
+/* Links after the brand sit together; user name pushed to the right of links */
+.layout > nav span { color: rgba(255,255,255,.7); font-size: 0.875rem; margin-left: auto; }
+.layout > nav button {
+  background: rgba(255,255,255,.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.25);
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.layout > nav button:hover { background: rgba(255,255,255,.22); }
+
+footer {
+  background: var(--blue-900);
+  color: rgba(255,255,255,.7);
+  text-align: center;
+  padding: 28px 24px;
+  font-size: 0.875rem;
+}
+footer p { color: inherit; }
+footer p:first-child { color: #fff; font-weight: 600; font-size: 1rem; }
+footer p:last-child { color: rgba(255,255,255,.55); }
+
+/* ============================================================================
+   PAGE WRAPPERS — shared centered container
+   ============================================================================ */
+.home-page, .dashboard-page, .settings-page, .users-page,
+.user-watchlist-page, .user-academic-scores-page {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+.home-page > h1, .dashboard-page > h1, .settings-page > h1, .users-page > h1,
+.user-watchlist-page > h1, .user-academic-scores-page > h1 {
+  margin-bottom: 24px;
+}
+
+/* "← Back to Users" — first button on detail pages reads as a quiet link */
+.user-watchlist-page > button:first-of-type,
+.user-academic-scores-page > button:first-of-type {
+  background: none;
+  border: none;
+  color: var(--blue-600);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  padding: 0;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+.user-watchlist-page > button:first-of-type:hover,
+.user-academic-scores-page > button:first-of-type:hover { color: var(--blue-800); }
+
+/* ============================================================================
+   TABS — home-tabs / dashboard-tabs / settings-tabs
+   ============================================================================ */
+.home-tabs, .dashboard-tabs, .settings-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--line-200);
+  margin-bottom: 28px;
+}
+.home-tabs button, .dashboard-tabs button, .settings-tabs button {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: color .15s ease, border-color .15s ease;
+}
+.home-tabs button:hover, .dashboard-tabs button:hover, .settings-tabs button:hover {
+  color: var(--ink-900);
+}
+.home-tabs button[aria-current="true"],
+.dashboard-tabs button[aria-current="true"],
+.settings-tabs button[aria-current="true"] {
+  color: var(--primary);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* ============================================================================
+   BUTTONS
+   Hierarchy with ZERO markup changes:
+     • <button type="submit">  → solid blue primary (the main action)
+     • every other <button>    → quiet secondary outline
+   Opt-in modifier classes for the cases CSS can't infer from markup. Add ONE
+   word to a button to re-cast it — structure untouched:
+     class="btn-danger"   destructive (Delete / Remove)   ← recommended
+     class="btn-primary"  force solid blue on a type="button"
+     class="btn-accent"   gold call-to-action (e.g. Add to Watchlist)
+     class="btn-ghost"    borderless, text-only
+     class="btn-sm"       compact   |   class="btn-block"  full width
+   ============================================================================ */
+button {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-300);
+  background: var(--paper);
+  color: var(--primary);
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, color .15s ease,
+              box-shadow .15s ease, transform .05s ease;
+}
+button:hover:not(:disabled) { background: var(--blue-50); border-color: var(--blue-300); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+/* Primary = solid blue. Applies to submits automatically, or via .btn-primary. */
+button[type="submit"], .btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+button[type="submit"]:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover); border-color: var(--primary-hover);
+}
+button[type="submit"]:active:not(:disabled), .btn-primary:active:not(:disabled) {
+  background: var(--primary-active); border-color: var(--primary-active);
+}
+
+/* Danger = red outline → red fill on hover. For Delete / Remove. */
+.btn-danger {
+  background: var(--paper);
+  color: var(--danger-600);
+  border-color: var(--danger-500);
+}
+.btn-danger:hover:not(:disabled) { background: var(--danger-500); color: #fff; border-color: var(--danger-500); }
+.btn-danger:active:not(:disabled) { background: var(--danger-600); border-color: var(--danger-600); }
+
+/* Accent = warm gold call-to-action. */
+.btn-accent {
+  background: var(--accent);
+  color: var(--blue-900);
+  border-color: var(--accent);
+}
+.btn-accent:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+/* Ghost = borderless text button. */
+.btn-ghost { background: transparent; border-color: transparent; color: var(--primary); }
+.btn-ghost:hover:not(:disabled) { background: var(--blue-50); border-color: transparent; }
+
+/* Explicit secondary (same as default) — for readability at call sites. */
+.btn-secondary { background: var(--paper); color: var(--primary); border-color: var(--line-300); }
+
+/* Sizes & width */
+.btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
+.btn-block { display: flex; width: 100%; }
+
+/* ============================================================================
+   FORMS — labels, inputs, selects
+   ============================================================================ */
+label { font-size: 0.875rem; font-weight: 500; color: var(--ink-700); }
+
+input, select {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--ink-900);
+  background: var(--paper);
+  border: 1px solid var(--line-300);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input::placeholder { color: var(--ink-400); }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: var(--focus-ring);
+}
+input:disabled, select:disabled { background: var(--canvas-2); color: var(--ink-400); cursor: not-allowed; }
+select { cursor: pointer; }
+
+/* Form blocks inside cards / settings get vertical rhythm.
+   AcademicScores, Basic & Password settings render <form> with <div> field rows. */
+form > div { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+form > div > label { margin-bottom: 0; }
+
+/* ============================================================================
+   CONTROLS — sort-controls / watchlist-controls / admin-controls
+   ============================================================================ */
+.sort-controls, .watchlist-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+.sort-controls input[type="text"] { flex: 1 1 280px; min-width: 220px; }
+.sort-controls label, .watchlist-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--ink-500);
+}
+
+.admin-controls { margin-bottom: 24px; }
+.admin-controls > form {
+  margin-top: 16px;
+  padding: 24px;
+  background: var(--paper);
+  border: 1px solid var(--line-200);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 16px;
+  max-width: 560px;
+}
+.admin-controls > form label { display: flex; flex-direction: column; gap: 6px; }
+
+/* ============================================================================
+   CARDS — card-grid / card
+   ============================================================================ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--blue-100); }
+.card h3 { font-size: 1.125rem; margin-bottom: 2px; }
+.card > p { font-size: 0.875rem; color: var(--ink-500); }
+.card > p:first-of-type { color: var(--primary); font-weight: 600; font-size: 0.9375rem; }
+.card .card-description { color: var(--ink-700); font-size: 0.9375rem; margin-top: 4px; }
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-100);
+}
+.card-actions p { width: 100%; font-size: 0.8125rem; color: var(--ink-500); margin-bottom: 2px; }
+.card-actions button { padding: 7px 13px; font-size: 0.8125rem; }
+.card-actions a {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  align-self: center;
+}
+.card-actions details { width: 100%; font-size: 0.875rem; }
+.card-actions summary { cursor: pointer; color: var(--primary); font-weight: 600; }
+.card-actions details ul { margin-top: 8px; color: var(--ink-500); }
+
+/* Inline edit form inside a card */
+.card form { display: grid; gap: 12px; }
+.card form label { display: flex; flex-direction: column; gap: 6px; }
+.card form button { margin-top: 4px; }
+
+/* ============================================================================
+   TABLES — DataTable renders bare <table>; up-table-wrap is the scroll shell
+   ============================================================================ */
+.up-table-wrap { overflow-x: auto; border-radius: var(--radius); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  background: var(--paper);
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+  background: var(--canvas-2);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-200);
+  white-space: nowrap;
+}
+tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line-100); color: var(--ink-700); vertical-align: middle; }
+tbody tr:nth-child(even) { background: var(--canvas); }
+tbody tr:hover { background: var(--blue-50); }
+tbody tr:last-child td { border-bottom: none; }
+/* Compact controls inside table cells */
+table select, table input { padding: 6px 10px; font-size: 0.875rem; }
+table button { padding: 6px 12px; font-size: 0.8125rem; }
+table .card-actions, table td > * + * { margin-top: 0; }
+
+/* ============================================================================
+   LOGIN PAGE
+   ============================================================================ */
+/* ============================================================================
+   LOGIN PAGE
+   ============================================================================ */
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, var(--blue-50), transparent 70%),
+    var(--canvas);
+}
+
+/* The new wrapper that holds both sides */
+.login-split-card {
+  display: flex;
+  width: 100%;
+  
+  /* 1. Increased from 900px to make it much wider */
+  max-width: 1400px; 
+  
+  /* 2. Added to make the card taller and more prominent */
+  min-height: 650px; 
+  max-height: 850px;
+  
+  background: var(--paper);
+  border: 1px solid var(--line-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden; 
+}
+
+/* Left side: Welcome Panel */
+.login-welcome-panel {
+  flex: 1;
+  
+  /* Apply the gradient directly to the CSS container */
+  background: linear-gradient(180deg, var(--blue-700) 0%, var(--blue-900) 100%);
+  
+  color: white;
+  padding: 40px; /* Give the image some breathing room from the edges */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Right side: The form */
+.login-split-card form {
+  flex: 1;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  background: var(--paper);
+}
+
+.login-split-card form > p { text-align: center; color: var(--ink-500); margin-bottom: 22px; }
+.login-split-card form > div { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.login-split-card form > div label { font-weight: 500; }
+.login-split-card form button[type="submit"] { margin-top: 8px; padding: 12px; font-size: 1rem; }
+
+/* Responsive: Stack it and hide the image panel on small screens */
+@media (max-width: 768px) {
+  .login-welcome-panel {
+    display: none;
+  }
+  .login-split-card form {
+    padding: 40px 24px;
+  }
+}
+
+/* ============================================================================
+   CONFIRM DIALOG — modal overlay (class hooks per spec; works if refactored
+   from inline styles to .confirm-dialog-overlay / .confirm-dialog)
+   ============================================================================ */
+.confirm-dialog-overlay {
+  position: fixed; inset: 0;
+  background: rgba(18,42,79,.45);
+  backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.confirm-dialog {
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 420px; width: 100%;
+  padding: 32px;
+  text-align: center;
+}
+.confirm-dialog p { color: var(--ink-900); font-size: 1.0625rem; margin-bottom: 24px; }
+.confirm-dialog button { min-width: 96px; }
+.confirm-dialog button:last-child { background: var(--primary); color: #fff; border-color: var(--primary); }
+.confirm-dialog button:last-child:hover { background: var(--primary-hover); }
+
+/* ============================================================================
+   MISC views — success messages
+   ============================================================================ */
+form > p:last-child:not([role="alert"]) { color: var(--success-600); font-weight: 500; }
+
+/* Sekem / numeric figures read as tabular mono in tables */
+tbody td { font-variant-numeric: tabular-nums; }
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+@media (max-width: 720px) {
+  .layout > nav { gap: 1rem; padding: 0 16px; flex-wrap: wrap; height: auto; min-height: 64px; }
+  .layout > nav span { display: none; }
+  .home-page, .dashboard-page, .settings-page, .users-page,
+  .user-watchlist-page, .user-academic-scores-page { padding: 28px 16px 48px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .sort-controls, .watchlist-controls { padding: 14px; }
+  .login-page form { padding: 32px 24px; }
+  table { font-size: 0.8125rem; }
+  thead th, tbody td { padding: 10px 12px; }
+}

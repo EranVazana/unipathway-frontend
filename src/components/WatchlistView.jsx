@@ -67,10 +67,11 @@ export default function WatchlistView({
       label: 'Status',
       render: (row) => (
         <select
-          value={row.status}
-          disabled={pendingWatchlistId === row.watchlistId}
-          onChange={(e) => handleStatusChange(row.watchlistId, e.target.value)}
-        >
+            className={`status-select status-${row.status.toLowerCase()}`}
+            value={row.status}
+            disabled={pendingWatchlistId === row.watchlistId}
+            onChange={(e) => handleStatusChange(row.watchlistId, e.target.value)}
+          >
           {STATUS_OPTIONS.map((status) => (
             <option key={status} value={status}>
               {status}
@@ -105,6 +106,7 @@ export default function WatchlistView({
         <>
           <button
             type="button"
+            className="btn-danger"
             disabled={pendingWatchlistId === row.watchlistId}
             onClick={() => setConfirmTarget({ id: row.watchlistId, label: departmentName(row.departmentId) })}
           >
@@ -162,7 +164,11 @@ export default function WatchlistView({
       <div className="watchlist-controls">
         <label>
           Filter by status:{' '}
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                      <select
+              className="form-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
             <option value="All">All</option>
             {STATUS_OPTIONS.map((status) => (
               <option key={status} value={status}>
@@ -174,7 +180,11 @@ export default function WatchlistView({
 
         <label>
           Sort by:{' '}
-          <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
+                      <select
+              className="form-select"
+              value={sortField}
+              onChange={(e) => setSortField(e.target.value)}
+            >
             <option value="none">None</option>
             {SORT_FIELDS.map((field) => (
               <option key={field.key} value={field.key}>
@@ -187,7 +197,11 @@ export default function WatchlistView({
         {sortField !== 'none' && (
           <label>
             Direction:{' '}
-            <select value={sortDirection} onChange={(e) => setSortDirection(e.target.value)}>
+                          <select
+                className="form-select"
+                value={sortDirection}
+                onChange={(e) => setSortDirection(e.target.value)}
+              >
               <option value="asc">A → Z</option>
               <option value="desc">Z → A</option>
             </select>

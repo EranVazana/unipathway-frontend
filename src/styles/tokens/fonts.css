@@ -1,0 +1,6 @@
+/* UniPathway — Webfonts
+   Inter is the product typeface (per brand spec). Loaded from Google Fonts.
+   To self-host: download Inter, drop the .woff2 into assets/fonts/, and
+   replace the @import below with @font-face rules pointing at them. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');

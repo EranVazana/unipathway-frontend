@@ -1,0 +1,73 @@
+/* UniPathway — Color tokens
+   Brand: deep academic blue + warm gold, on a calm off-white canvas.
+   Base ramps first, then semantic aliases that the rest of the system uses. */
+
+:root {
+  /* ---- Brand: Academic Blue ---- */
+  --blue-900: #122a4f;
+  --blue-800: #15315c;
+  --blue-700: #1a3a6b; /* PRIMARY — deep academic blue */
+  --blue-600: #244a82;
+  --blue-500: #2f5d9e;
+  --blue-300: #8aa6cc;
+  --blue-100: #dde6f2;
+  --blue-50:  #eef3f9;
+
+  /* ---- Brand: Warm Gold ---- */
+  --gold-700: #9c7f33;
+  --gold-600: #b3923a;
+  --gold-500: #c9a84c; /* ACCENT — warm gold */
+  --gold-300: #e0c986;
+  --gold-100: #f3e9cd;
+  --gold-50:  #faf4e3;
+
+  /* ---- Neutrals (slightly blue-cool) ---- */
+  --ink-900: #1c2530; /* primary text */
+  --ink-700: #39424f;
+  --ink-500: #5b6675; /* secondary text */
+  --ink-400: #828c9b; /* muted / placeholder */
+  --ink-300: #aab3c0;
+  --line-300: #d6dbe4; /* strong border */
+  --line-200: #e3e7ee; /* default border */
+  --line-100: #eef1f6; /* hairline / table rule */
+  --paper:    #ffffff; /* card / surface */
+  --canvas:   #f8f9fb; /* page background (off-white) */
+  --canvas-2: #f1f3f8; /* alt zebra row / sunken */
+
+  /* ---- Semantic status (watchlist + alerts) ---- */
+  --success-600: #2f7d5d;
+  --success-500: #3a9b73;
+  --success-50:  #e6f3ed;
+  --danger-600:  #b3402f;
+  --danger-500:  #cf5240;
+  --danger-50:   #fbeae7;
+  --warning-600: #b3863a; /* leans into the gold family */
+  --warning-50:  #f7eed8;
+  --info-600:    #2f5d9e;
+  --info-50:     #e7eef9;
+
+  /* ---- Semantic aliases (use these in components) ---- */
+  --color-primary:        var(--blue-700);
+  --color-primary-hover:  var(--blue-800);
+  --color-primary-active: var(--blue-900);
+  --color-accent:         var(--gold-500);
+  --color-accent-hover:   var(--gold-600);
+
+  --text-strong:   var(--ink-900);
+  --text-body:     var(--ink-700);
+  --text-muted:    var(--ink-500);
+  --text-faint:    var(--ink-400);
+  --text-on-brand: #ffffff;
+  --text-link:     var(--blue-600);
+
+  --surface-page:   var(--canvas);
+  --surface-card:   var(--paper);
+  --surface-sunken: var(--canvas-2);
+  --surface-brand:  var(--blue-700);
+
+  --border-default: var(--line-200);
+  --border-strong:  var(--line-300);
+  --border-hair:    var(--line-100);
+
+  --focus-ring: 0 0 0 3px rgba(47, 93, 158, 0.35);
+}

@@ -42,7 +42,14 @@ export default function Navbar() {
 
   return (
     <nav>
-      <Link to="/home">UniPathway</Link>
+      {/* Updated Brand Section with ONLY the Logo */}
+      <Link to="/home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <img 
+          src="/logo.svg?v=2" 
+          alt="UniPathway Logo" 
+          style={{ width: 'auto', height: '50px' }}
+        />
+      </Link>
 
       <Link to="/home">Home</Link>
       <Link to="/dashboard">Dashboard</Link>
