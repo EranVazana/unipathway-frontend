@@ -1,3 +1,5 @@
+import PageSpinner from './../components/PageSpinner';
+import PageError from './../components/PageError';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { usersService } from '../services/usersService';
@@ -24,8 +26,8 @@ export default function UserAcademicScores() {
     return () => { isMounted = false; };
   }, [id]);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p role="alert">{error}</p>;
+  if (isLoading) return <PageSpinner />;
+  if (error) return <PageError message={error} />;
 
   return (
     <div className="user-academic-scores-page">

@@ -1,23 +1,29 @@
+import PageSpinner from './../components/PageSpinner';
+import PageError from './../components/PageError';
 import { useState } from 'react';
 import { useAcademicData } from '../hooks/useAcademicData';
 import WatchlistView from '../components/WatchlistView';
 import AcademicScoresView from '../components/AcademicScoresView';
+import InfoGraphic from '../components/InfoGraphic';
+import TopRecommendations from '../components/TopRecommendations';
 
 const TABS = [
-  { key: 'watchlist', label: 'My Watchlist' },
-  { key: 'academic', label: 'Academic Scores' }
+  { key: 'watchlist',       label: 'My Watchlist' },
+  { key: 'academic',        label: 'Academic Scores' },
+  { key: 'recommendations', label: '🎯 Recommendations' },
+  { key: 'infographic',     label: '📊 InfoGraphic' },
 ];
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('watchlist');
   const data = useAcademicData();
 
-  if (data.isLoading) return <p>Loading dashboard...</p>;
-  if (data.error) return <p role="alert">{data.error}</p>;
+  if (data.isLoading) return <PageSpinner />;
+  if (data.error) return <PageError message={data.error} />;
 
   return (
     <div className="dashboard-page">
-      <h1>{data.user.firstName}'s Dashboard</h1>
+      <h1>{data.user.firstName}&apos;s Dashboard</h1>
 
       <nav className="dashboard-tabs">
         {TABS.map((tab) => (
@@ -44,7 +50,28 @@ export default function Dashboard() {
         />
       )}
 
-      {activeTab === 'academic' && <AcademicScoresView />}
+      {activeTab === 'academic' && <AcademicScoresView onSaved={data.refreshWatchlist} />}
+
+      {activeTab === 'recommendations' && (
+        <TopRecommendations
+          watchlist={data.watchlist}
+          departments={data.departments}
+          universityName={data.universityName}
+          latestThreshold={data.latestThreshold}
+          user={data.user}
+        />
+      )}
+
+      {activeTab === 'infographic' && (
+        <InfoGraphic
+          watchlist={data.watchlist}
+          departments={data.departments}
+          universityName={data.universityName}
+          departmentName={data.departmentName}
+          latestThreshold={data.latestThreshold}
+          user={data.user}
+        />
+      )}
     </div>
   );
 }

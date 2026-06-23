@@ -21,6 +21,19 @@ const SUBJECT_LABELS = {
   chemistry: 'Chemistry', art: 'Art', music: 'Music'
 };
 
+const SUBJECT_ICONS = {
+  bibleStudies: '📖', literature: '📚', hebrewExpression: '✍️',
+  history: '🏛️', civics: '⚖️', mathematics: '📐', english: '🇬🇧',
+  computerScience: '💻', physics: '⚛️', psychology: '🧠',
+  arabic: '🌙', biology: '🧬', chemistry: '🧪', art: '🎨', music: '🎵'
+};
+
+const PSYCHOMETRIC_ICONS = { verbal: '💬', quantitative: '📊', english: '🇬🇧' };
+
+const OPTIONAL_SUBJECTS = Object.keys(SUBJECT_LABELS).filter(
+  (k) => !MANDATORY_SUBJECTS.includes(k)
+);
+
 function subjectLabel(key) {
   return SUBJECT_LABELS[key] || key;
 }
@@ -29,13 +42,8 @@ function emptyPsychometric() {
   return { verbal: '', quantitative: '', english: '' };
 }
 
-function emptyBagrutSubject(minUnits = 1) {
-  return { grade: '', units: String(minUnits) };
-}
-
 function buildInitialBagrut(bagrutScores) {
   const result = {};
-  // Seed mandatory subjects first
   for (const subj of MANDATORY_SUBJECTS) {
     const existing = bagrutScores?.[subj];
     result[subj] = {
@@ -43,7 +51,6 @@ function buildInitialBagrut(bagrutScores) {
       units: existing ? String(existing.units) : String(MANDATORY_MIN_UNITS[subj])
     };
   }
-  // Carry over any optional subjects that were already saved
   if (bagrutScores) {
     for (const [subj, val] of Object.entries(bagrutScores)) {
       if (!MANDATORY_SUBJECTS.includes(subj)) {
@@ -54,20 +61,22 @@ function buildInitialBagrut(bagrutScores) {
   return result;
 }
 
-export default function AcademicScoresView({ targetUserId } = {}) {
+export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
   const { user } = useAuth();
 
-  // If targetUserId is provided, we're in admin mode viewing another user's scores
   const effectiveUserId = targetUserId ?? user.userId;
   const isAdminView = Boolean(targetUserId);
 
   const [academicScoresId, setAcademicScoresId] = useState(null);
   const [psychometric, setPsychometric] = useState(emptyPsychometric());
   const [bagrut, setBagrut] = useState(buildInitialBagrut(null));
-  const [newSubjectName, setNewSubjectName] = useState('');
+
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [customSubjectName, setCustomSubjectName] = useState('');
   const [newSubjectGrade, setNewSubjectGrade] = useState('56');
   const [newSubjectUnits, setNewSubjectUnits] = useState('1');
   const [newSubjectError, setNewSubjectError] = useState('');
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [loadError, setLoadError] = useState('');
@@ -75,7 +84,6 @@ export default function AcademicScoresView({ targetUserId } = {}) {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    // In normal Settings context, only 'user' role has academic scores
     if (!isAdminView && user.userRole !== 'user') {
       setIsLoading(false);
       return;
@@ -113,22 +121,30 @@ export default function AcademicScoresView({ targetUserId } = {}) {
     setSaveError('');
   }
 
+  function availableOptionalSubjects() {
+    return OPTIONAL_SUBJECTS.filter((k) => !bagrut[k]);
+  }
+
   function handleAddSubject() {
-    const key = newSubjectName.trim();
+    const isCustom = selectedSubject === '__custom__';
+    const key = isCustom ? customSubjectName.trim() : selectedSubject;
+
     if (!key) {
-      setNewSubjectError('Subject name is required.');
+      setNewSubjectError('Please select a subject or enter a custom name.');
       return;
     }
-    if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(key)) {
-      setNewSubjectError('Subject name must start with a letter and contain only letters and numbers (e.g. computerScience).');
+    if (isCustom && !/^[a-zA-Z][a-zA-Z0-9]*$/.test(key)) {
+      setNewSubjectError('Custom name must start with a letter and contain only letters and numbers (e.g. computerScience).');
       return;
     }
     if (bagrut[key]) {
-      setNewSubjectError(`"${key}" is already in your scores.`);
+      setNewSubjectError(`"${subjectLabel(key)}" is already in your scores.`);
       return;
     }
+
     setBagrut((prev) => ({ ...prev, [key]: { grade: newSubjectGrade, units: newSubjectUnits } }));
-    setNewSubjectName('');
+    setSelectedSubject('');
+    setCustomSubjectName('');
     setNewSubjectGrade('56');
     setNewSubjectUnits('1');
     setNewSubjectError('');
@@ -146,14 +162,10 @@ export default function AcademicScoresView({ targetUserId } = {}) {
 
   function validate() {
     const p = psychometric;
-    const pFields = [
-      { name: 'verbal', value: Number(p.verbal) },
-      { name: 'quantitative', value: Number(p.quantitative) },
-      { name: 'english', value: Number(p.english) }
-    ];
-    for (const f of pFields) {
-      if (isNaN(f.value) || f.value < 50 || f.value > 150) {
-        setSaveError(`Psychometric ${f.name} must be a number between 50 and 150.`);
+    for (const name of ['verbal', 'quantitative', 'english']) {
+      const val = Number(p[name]);
+      if (isNaN(val) || val < 50 || val > 150) {
+        setSaveError(`Psychometric ${name} must be a number between 50 and 150.`);
         return false;
       }
     }
@@ -195,6 +207,7 @@ export default function AcademicScoresView({ targetUserId } = {}) {
       };
       await academicScoresService.update(academicScoresId, payload);
       setSaveSuccess(true);
+      if (onSaved) onSaved();
     } catch (err) {
       setSaveError(err.message || 'Failed to save academic scores.');
     } finally {
@@ -205,113 +218,190 @@ export default function AcademicScoresView({ targetUserId } = {}) {
   if (!isAdminView && user.userRole !== 'user') {
     return <p>Academic scores are only available for student accounts.</p>;
   }
-
   if (isLoading) return <p>Loading academic scores...</p>;
   if (loadError) return <p role="alert">{loadError}</p>;
+  if (!academicScoresId) return <p>No academic scores on record for this user.</p>;
 
-  if (!academicScoresId) {
-    return <p>No academic scores on record for this user.</p>;
-  }
+  const available = availableOptionalSubjects();
 
   return (
-    <form onSubmit={handleSave} noValidate>
+    <form onSubmit={handleSave} noValidate className="academic-scores-form">
 
-      <h3>Psychometric Scores</h3>
-      <p>Each score must be between 50 and 150.</p>
-      {['verbal', 'quantitative', 'english'].map((field) => (
-        <div key={field}>
-          <label htmlFor={`psych-${field}`} style={{ textTransform: 'capitalize' }}>{field}</label>
-          <input
-            id={`psych-${field}`}
-            name={field}
-            type="number"
-            min={50}
-            max={150}
-            value={psychometric[field]}
-            onChange={handlePsychometricChange}
-            disabled={isSaving}
-          />
+      {/* ── Psychometric ── */}
+      <section className="scores-section">
+        <h3 className="scores-section__title">Psychometric Scores</h3>
+        <p className="scores-section__hint">Each score must be between 50 and 150.</p>
+        <div className="scores-card-grid scores-card-grid--centered">
+          {['verbal', 'quantitative', 'english'].map((field) => (
+            <div key={field} className="subject-card">
+              <span className="subject-card__name" style={{ textTransform: 'capitalize' }}>
+                  {PSYCHOMETRIC_ICONS[field] && <span className="subject-card__icon">{PSYCHOMETRIC_ICONS[field]}</span>}
+                  {field}
+                </span>
+              <div className="subject-card__fields">
+                <div className="subject-card__field">
+                  <label htmlFor={`psych-${field}`}>Score</label>
+                  <input
+                    id={`psych-${field}`}
+                    name={field}
+                    type="number"
+                    min={50}
+                    max={150}
+                    value={psychometric[field]}
+                    onChange={handlePsychometricChange}
+                    disabled={isSaving}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      </section>
 
-      <h3>Bagrut Scores</h3>
-      <p>Grade: 0–100. Units: at least the minimum shown.</p>
-      {Object.keys(bagrut).map((subj) => {
-        const minUnits = MANDATORY_MIN_UNITS[subj] ?? 1;
-        const isOptional = !MANDATORY_SUBJECTS.includes(subj);
-        return (
-          <div key={subj}>
-            <strong>{subjectLabel(subj)}</strong>
-            {isOptional && (
-              <button
-                type="button"
-                onClick={() => handleRemoveSubject(subj)}
+      {/* ── Bagrut ── */}
+      <section className="scores-section">
+        <h3 className="scores-section__title">Bagrut Scores</h3>
+        <p className="scores-section__hint">Grade: 0–100. Units: at least the minimum shown.</p>
+        <div className="scores-card-grid">
+          {Object.keys(bagrut).map((subj) => {
+            const minUnits = MANDATORY_MIN_UNITS[subj] ?? 1;
+            const isOptional = !MANDATORY_SUBJECTS.includes(subj);
+            return (
+              <div key={subj} className={`subject-card${isOptional ? ' subject-card--optional' : ''}`}>
+                <div className="subject-card__header">
+                  <div className="subject-card__title-group">
+                    <span className="subject-card__name">
+                      {SUBJECT_ICONS[subj] && <span className="subject-card__icon">{SUBJECT_ICONS[subj]}</span>}
+                      {subjectLabel(subj)}
+                    </span>
+                  </div>
+                  {isOptional && (
+                    <button
+                      type="button"
+                      className="btn-ghost btn-sm subject-card__remove"
+                      onClick={() => handleRemoveSubject(subj)}
+                      disabled={isSaving}
+                      aria-label={`Remove ${subjectLabel(subj)}`}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+                <div className="subject-card__fields">
+                  <div className="subject-card__field">
+                    <label htmlFor={`${subj}-grade`}>Grade</label>
+                    <input
+                      id={`${subj}-grade`}
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={bagrut[subj].grade}
+                      onChange={(e) => handleBagrutChange(subj, 'grade', e.target.value)}
+                      disabled={isSaving}
+                    />
+                  </div>
+                  <div className="subject-card__field">
+                    <label htmlFor={`${subj}-units`}>Units (min {minUnits})</label>
+                    <input
+                      id={`${subj}-units`}
+                      type="number"
+                      min={minUnits}
+                      max={5}
+                      value={bagrut[subj].units}
+                      onChange={(e) => handleBagrutChange(subj, 'units', e.target.value)}
+                      disabled={isSaving}
+                    />
+                  </div>
+                </div>
+                {isOptional && (
+                  <div className="subject-card__badge-row">
+                    <span className="subject-card__badge">Optional</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Add Subject ── */}
+      <section className="scores-section">
+        <h3 className="scores-section__title">Add a Subject</h3>
+        <div className="add-subject-card">
+          <div className="add-subject-card__row">
+            <div className="subject-card__field">
+              <label htmlFor="add-subject-select">Subject</label>
+              <select
+                id="add-subject-select"
+                value={selectedSubject}
+                onChange={(e) => { setSelectedSubject(e.target.value); setNewSubjectError(''); }}
                 disabled={isSaving}
               >
-                Remove
-              </button>
-            )}
-            <label htmlFor={`${subj}-grade`}>Grade</label>
-            <input
-              id={`${subj}-grade`}
-              type="number"
-              min={0}
-              max={100}
-              value={bagrut[subj].grade}
-              onChange={(e) => handleBagrutChange(subj, 'grade', e.target.value)}
-              disabled={isSaving}
-            />
-            <label htmlFor={`${subj}-units`}>Units (min {minUnits})</label>
-            <input
-              id={`${subj}-units`}
-              type="number"
-              min={minUnits}
-              max={5}
-              value={bagrut[subj].units}
-              onChange={(e) => handleBagrutChange(subj, 'units', e.target.value)}
-              disabled={isSaving}
-            />
-          </div>
-        );
-      })}
+                <option value="">— Select a subject —</option>
+                {available.map((k) => (
+                  <option key={k} value={k}>{SUBJECT_LABELS[k]}</option>
+                ))}
+                <option value="__custom__">Other (enter manually)</option>
+              </select>
+            </div>
 
-      <div>
-        <h4>Add a Subject</h4>
-        <input
-          type="text"
-          placeholder="e.g. computerScience, physics, arabic"
-          value={newSubjectName}
-          onChange={(e) => { setNewSubjectName(e.target.value); setNewSubjectError(''); }}
-          disabled={isSaving}
-        />
-        <label>Grade</label>
-        <input
-          type="number"
-          min={0}
-          max={100}
-          value={newSubjectGrade}
-          onChange={(e) => setNewSubjectGrade(e.target.value)}
-          disabled={isSaving}
-        />
-        <label>Units</label>
-        <input
-          type="number"
-          min={1}
-          max={5}
-          value={newSubjectUnits}
-          onChange={(e) => setNewSubjectUnits(e.target.value)}
-          disabled={isSaving}
-        />
-        <button type="button" onClick={handleAddSubject} disabled={isSaving}>
-          Add Subject
-        </button>
-        {newSubjectError && <span role="alert">{newSubjectError}</span>}
-      </div>
+            {selectedSubject === '__custom__' && (
+              <div className="subject-card__field">
+                <label htmlFor="add-subject-custom">Subject key (camelCase)</label>
+                <input
+                  id="add-subject-custom"
+                  type="text"
+                  placeholder="e.g. frenchLiterature"
+                  value={customSubjectName}
+                  onChange={(e) => { setCustomSubjectName(e.target.value); setNewSubjectError(''); }}
+                  disabled={isSaving}
+                />
+              </div>
+            )}
+
+            <div className="subject-card__field">
+              <label htmlFor="add-subject-grade">Grade</label>
+              <input
+                id="add-subject-grade"
+                type="number"
+                min={0}
+                max={100}
+                value={newSubjectGrade}
+                onChange={(e) => setNewSubjectGrade(e.target.value)}
+                disabled={isSaving}
+              />
+            </div>
+
+            <div className="subject-card__field">
+              <label htmlFor="add-subject-units">Units</label>
+              <input
+                id="add-subject-units"
+                type="number"
+                min={1}
+                max={5}
+                value={newSubjectUnits}
+                onChange={(e) => setNewSubjectUnits(e.target.value)}
+                disabled={isSaving}
+              />
+            </div>
+
+            <button
+              type="button"
+              className="btn-accent add-subject-card__btn"
+              onClick={handleAddSubject}
+              disabled={isSaving || !selectedSubject}
+            >
+              + Add
+            </button>
+          </div>
+          {newSubjectError && <span role="alert">{newSubjectError}</span>}
+        </div>
+      </section>
 
       {saveError && <p role="alert">{saveError}</p>}
       {saveSuccess && <p>Academic scores saved. Your watchlist Sekem statuses have been recalculated.</p>}
 
-      <button type="submit" disabled={isSaving}>
+      <button type="submit" className="btn-primary btn-block" disabled={isSaving}>
         {isSaving ? 'Saving...' : 'Save Academic Scores'}
       </button>
     </form>

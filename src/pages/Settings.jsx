@@ -12,8 +12,6 @@ export default function Settings() {
 
   return (
     <div className="settings-page">
-      <h1>Settings</h1>
-
       <nav className="settings-tabs">
         {TABS.map((tab) => (
           <button

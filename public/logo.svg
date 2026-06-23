@@ -15,7 +15,8 @@
   <g transform="translate(12, 10)">
     <polygon points="35,5 65,18 35,31 5,18" fill="url(#blueGradient)" />
     <path d="M 18,24 L 18,42 A 17,10 0 0,0 52,42 L 52,24" fill="none" stroke="url(#blueGradient)" stroke-width="4"/>
-    <line x1="65" y1="18" x2="65" y2="38" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
+    <!-- Orange tassel rope connected to the tassel dot -->
+    <line x1="65" y1="18" x2="65" y2="41" stroke="#F59E0B" stroke-width="3" stroke-linecap="round"/>
     <circle cx="65" cy="41" r="3.5" fill="#F59E0B"/>
     
     <path d="M 0,55 L 25,38 L 45,48 L 75,25" fill="none" stroke="url(#goldGradient)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>

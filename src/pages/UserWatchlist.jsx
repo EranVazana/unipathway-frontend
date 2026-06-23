@@ -1,3 +1,5 @@
+import PageSpinner from './../components/PageSpinner';
+import PageError from './../components/PageError';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { usersService } from '../services/usersService';
@@ -91,7 +93,29 @@ export default function UserWatchlist() {
       render: (row) => {
         const dept = departments.find((d) => d.departmentId === row.departmentId);
         const threshold = dept ? latestThreshold(dept.departmentId) : null;
-        return threshold ? `${row.sekemStatus} (${threshold.sekemType})` : row.sekemStatus;
+        const raw = row.sekemStatus || '';
+        const LABELS = {
+          'passed-required-acceptance-score': 'Passed ✓',
+          'failed-required-acceptance-score': 'Below Score',
+          'below-required-acceptance-score':  'Below Score',
+          'no-threshold-data':               'No Data',
+          'no-sekem-data':                   'No Sekem',
+        };
+        const CLASSES = {
+          'passed-required-acceptance-score': 'sekem-badge sekem-badge--pass',
+          'failed-required-acceptance-score': 'sekem-badge sekem-badge--fail',
+          'below-required-acceptance-score':  'sekem-badge sekem-badge--fail',
+          'no-threshold-data':               'sekem-badge sekem-badge--neutral',
+          'no-sekem-data':                   'sekem-badge sekem-badge--neutral',
+        };
+        const label = LABELS[raw] ?? raw;
+        const cls   = CLASSES[raw] ?? 'sekem-badge sekem-badge--neutral';
+        const type  = threshold?.sekemType;
+        return (
+          <span className={cls}>
+            {label}{type ? <span className="sekem-badge__type">{type}</span> : null}
+          </span>
+        );
       }
     },
     { key: 'userSekem', label: 'Sekem Score', render: (row) => row.userSekem?.toFixed(2) ?? '—' },
@@ -117,8 +141,8 @@ export default function UserWatchlist() {
     }
   ];
 
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p role="alert">{error}</p>;
+  if (isLoading) return <PageSpinner />;
+  if (error) return <PageError message={error} />;
 
   return (
     <div className="user-watchlist-page">

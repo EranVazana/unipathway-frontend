@@ -1,19 +1,23 @@
+import PageSpinner from './../components/PageSpinner';
+import PageError from './../components/PageError';
 import { useState } from 'react';
 import { useAcademicData } from '../hooks/useAcademicData';
 import DepartmentsView from '../components/DepartmentsView';
 import UniversitiesView from '../components/UniversitiesView';
+import CompareView from '../components/CompareView';
 
 const TABS = [
-  { key: 'departments', label: 'Departments' },
-  { key: 'universities', label: 'Universities' }
+  { key: 'universities', label: 'Universities' },
+  { key: 'departments',  label: 'Departments' },
+  { key: 'compare',      label: '⚖️ Compare' },
 ];
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('departments');
+  const [activeTab, setActiveTab] = useState('universities');
   const data = useAcademicData();
 
-  if (data.isLoading) return <p>Loading...</p>;
-  if (data.error) return <p role="alert">{data.error}</p>;
+  if (data.isLoading) return <PageSpinner />;
+  if (data.error) return <PageError message={data.error} />;
 
   return (
     <div className="home-page">
@@ -39,11 +43,15 @@ export default function Home() {
           universities={data.universities}
           universityName={data.universityName}
           latestThreshold={data.latestThreshold}
+          thresholds={data.thresholds}
           isWatchlisted={data.isWatchlisted}
           addToWatchlist={data.addToWatchlist}
           createDepartment={data.createDepartment}
           updateDepartment={data.updateDepartment}
           deleteDepartment={data.deleteDepartment}
+          createThreshold={data.createThreshold}
+          updateThreshold={data.updateThreshold}
+          deleteThreshold={data.deleteThreshold}
         />
       )}
 
@@ -55,6 +63,18 @@ export default function Home() {
           updateUniversity={data.updateUniversity}
           deleteUniversity={data.deleteUniversity}
           user={data.user}
+        />
+      )}
+      {activeTab === 'compare' && (
+        <CompareView
+          departments={data.departments}
+          universities={data.universities}
+          universityName={data.universityName}
+          latestThreshold={data.latestThreshold}
+          user={data.user}
+          isWatchlisted={data.isWatchlisted}
+          addToWatchlist={data.addToWatchlist}
+          watchlist={data.watchlist}
         />
       )}
     </div>

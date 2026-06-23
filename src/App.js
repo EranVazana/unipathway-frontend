@@ -8,6 +8,7 @@ import Settings from './pages/Settings';
 import Users from './pages/Users';
 import UserAcademicScores from './pages/UserAcademicScores';
 import UserWatchlist from './pages/UserWatchlist';
+import About from './pages/About';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<ProtectedRoute><About /></ProtectedRoute>} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

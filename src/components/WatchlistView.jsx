@@ -25,6 +25,11 @@ export default function WatchlistView({
   const [sortField, setSortField] = useState('none');
   const [sortDirection, setSortDirection] = useState('asc'); // 'asc' | 'desc'
   const [confirmTarget, setConfirmTarget] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 5;
+
+  function goToPage(next) { setCurrentPage(next); }
+  function resetPage() { setCurrentPage(1); }
 
   async function handleStatusChange(watchlistId, newStatus) {
     setRowErrors((prev) => ({ ...prev, [watchlistId]: '' }));
@@ -53,13 +58,18 @@ export default function WatchlistView({
   }
 
   const columns = [
-    { key: 'department', label: 'Department', render: (row) => departmentName(row.departmentId) },
     {
-      key: 'university',
-      label: 'University',
+      key: 'department',
+      label: 'Department',
       render: (row) => {
         const dept = departments.find((d) => d.departmentId === row.departmentId);
-        return dept ? universityName(dept.universityId) : 'Unknown university';
+        const uni = dept ? universityName(dept.universityId) : '';
+        return (
+          <div className="watchlist-dept-cell">
+            <span className="watchlist-dept-cell__name">{departmentName(row.departmentId)}</span>
+            {uni && <span className="watchlist-dept-cell__uni">{uni}</span>}
+          </div>
+        );
       }
     },
     {
@@ -86,7 +96,29 @@ export default function WatchlistView({
       render: (row) => {
         const dept = departments.find((d) => d.departmentId === row.departmentId);
         const threshold = dept ? latestThreshold(dept.departmentId) : null;
-        return threshold ? `${row.sekemStatus} (${threshold.sekemType})` : row.sekemStatus;
+        const raw = row.sekemStatus || '';
+        const LABELS = {
+          'passed-required-acceptance-score': 'Passed ✓',
+          'failed-required-acceptance-score': 'Below Score',
+          'below-required-acceptance-score':  'Below Score',
+          'no-threshold-data':               'No Data',
+          'no-sekem-data':                   'No Sekem',
+        };
+        const CLASSES = {
+          'passed-required-acceptance-score': 'sekem-badge sekem-badge--pass',
+          'failed-required-acceptance-score': 'sekem-badge sekem-badge--fail',
+          'below-required-acceptance-score':  'sekem-badge sekem-badge--fail',
+          'no-threshold-data':               'sekem-badge sekem-badge--neutral',
+          'no-sekem-data':                   'sekem-badge sekem-badge--neutral',
+        };
+        const label = LABELS[raw] ?? raw;
+        const cls   = CLASSES[raw] ?? 'sekem-badge sekem-badge--neutral';
+        const type  = threshold?.sekemType;
+        return (
+          <span className={cls}>
+            {label}{type ? <span className="sekem-badge__type">{type}</span> : null}
+          </span>
+        );
       }
     },
     { key: 'userSekem', label: 'Your Sekem', render: (row) => row.userSekem?.toFixed(2) ?? '—' },
@@ -106,11 +138,11 @@ export default function WatchlistView({
         <>
           <button
             type="button"
-            className="btn-danger"
+            className="btn-danger btn-sm watchlist-remove-btn"
             disabled={pendingWatchlistId === row.watchlistId}
             onClick={() => setConfirmTarget({ id: row.watchlistId, label: departmentName(row.departmentId) })}
           >
-            {pendingWatchlistId === row.watchlistId ? 'Working...' : 'Remove'}
+            {pendingWatchlistId === row.watchlistId ? '…' : '✕'}
           </button>
           {rowErrors[row.watchlistId] && <p role="alert">{rowErrors[row.watchlistId]}</p>}
         </>
@@ -152,6 +184,9 @@ export default function WatchlistView({
     return rows;
   }, [watchlist, statusFilter, sortField, sortDirection, departments, departmentName, universityName]);
 
+  const totalPages = Math.max(1, Math.ceil(visibleRows.length / PAGE_SIZE));
+  const pagedRows = visibleRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="watchlist-view">
       {confirmTarget && (
@@ -167,7 +202,7 @@ export default function WatchlistView({
                       <select
               className="form-select"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => { setStatusFilter(e.target.value); resetPage(); }}
             >
             <option value="All">All</option>
             {STATUS_OPTIONS.map((status) => (
@@ -183,7 +218,7 @@ export default function WatchlistView({
                       <select
               className="form-select"
               value={sortField}
-              onChange={(e) => setSortField(e.target.value)}
+              onChange={(e) => { setSortField(e.target.value); resetPage(); }}
             >
             <option value="none">None</option>
             {SORT_FIELDS.map((field) => (
@@ -200,7 +235,7 @@ export default function WatchlistView({
                           <select
                 className="form-select"
                 value={sortDirection}
-                onChange={(e) => setSortDirection(e.target.value)}
+                onChange={(e) => { setSortDirection(e.target.value); resetPage(); }}
               >
               <option value="asc">A → Z</option>
               <option value="desc">Z → A</option>
@@ -211,13 +246,45 @@ export default function WatchlistView({
 
       <DataTable
         columns={columns}
-        rows={visibleRows.map((w) => ({ ...w, id: w.watchlistId }))}
+        rows={pagedRows.map((w) => ({ ...w, id: w.watchlistId }))}
         emptyMessage={
           statusFilter === 'All'
             ? "You haven't added any departments to your watchlist yet. Switch to the Departments tab to add some."
             : `No watchlist entries with status "${statusFilter}".`
         }
+        minRows={PAGE_SIZE}
       />
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            type="button"
+            className="pagination__btn"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            ‹ Prev
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              className={`pagination__btn${page === currentPage ? ' pagination__btn--active' : ''}`}
+              onClick={() => goToPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="pagination__btn"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next ›
+          </button>
+        </div>
+      )}
     </div>
   );
 }

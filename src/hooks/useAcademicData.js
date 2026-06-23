@@ -109,13 +109,14 @@ export function useAcademicData() {
 
   // Department mutations
   async function createDepartment(data) {
-    await departmentsService.create(data);
+    const created = await departmentsService.create(data);
     const [updatedDepts, updatedUnis] = await Promise.all([
       departmentsService.getAll(),
       universitiesService.getAll()
     ]);
     setDepartments(updatedDepts);
     setUniversities(updatedUnis);
+    return created;
   }
 
   async function updateDepartment(id, data) {
@@ -157,6 +158,25 @@ export function useAcademicData() {
     setUniversities(updated);
   }
 
+  // Threshold mutations
+  async function createThreshold(data) {
+    await admissionThresholdsService.create(data);
+    const updated = await admissionThresholdsService.getAll();
+    setThresholds(updated);
+  }
+
+  async function updateThreshold(id, data) {
+    await admissionThresholdsService.update(id, data);
+    const updated = await admissionThresholdsService.getAll();
+    setThresholds(updated);
+  }
+
+  async function deleteThreshold(id) {
+    await admissionThresholdsService.delete(id);
+    const updated = await admissionThresholdsService.getAll();
+    setThresholds(updated);
+  }
+
   return {
     user,
     departments,
@@ -178,6 +198,9 @@ export function useAcademicData() {
     deleteDepartment,
     createUniversity,
     updateUniversity,
-    deleteUniversity
+    deleteUniversity,
+    createThreshold,
+    updateThreshold,
+    deleteThreshold
   };
 }

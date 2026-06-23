@@ -8,6 +8,15 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [bannerKey, setBannerKey] = useState(0);
+  const hoverCooldown = { current: false };
+
+  function handleBannerHover() {
+    if (hoverCooldown.current) return;
+    hoverCooldown.current = true;
+    setBannerKey(k => k + 1);
+    setTimeout(() => { hoverCooldown.current = false; }, 1500);
+  }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,13 +65,11 @@ export default function Login() {
       
       {/* Loading Overlay */}
       {isSubmitting && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(255,255,255,0.8)',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
-          <p>Logging in...</p>
+        <div className="login-loading-overlay">
+          <div className="page-spinner__ring">
+            <div /><div /><div /><div />
+          </div>
+          <p className="page-spinner__text">Logging in...</p>
         </div>
       )}
 
@@ -71,15 +78,16 @@ export default function Login() {
         
         {/* Left Side: Welcome Panel */}
         <div className="login-welcome-panel" style={{ padding: 0 }}>
-          <img 
-            src="/welcome-banner.svg?v=5" 
-            alt="Welcome to UniPathway" 
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              objectFit: 'contain',         /* Changed back to cover to remove borders */
-              objectPosition: 'bottom'    /* Anchors it to the bottom so text never gets cut! */
-            }} 
+          <img
+            src={`/welcome-banner.svg?v=5&t=${bannerKey}`}
+            alt="Welcome to UniPathway"
+            onMouseEnter={handleBannerHover}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'bottom'
+            }}
           />
         </div>
 
@@ -151,7 +159,7 @@ export default function Login() {
             {fieldErrors.password && <span role="alert">{fieldErrors.password}</span>}
           </div>
 
-          {serverError && <p role="alert">{serverError}</p>}
+          {serverError && <p role="alert" className="login-error">{serverError}</p>}
 
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Logging in...' : 'Log In'}

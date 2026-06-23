@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usersService } from '../services/usersService';
+
+function navClass({ isActive }) {
+  return isActive ? 'nav-link nav-link--active' : 'nav-link';
+}
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -42,19 +46,20 @@ export default function Navbar() {
 
   return (
     <nav>
-      {/* Updated Brand Section with ONLY the Logo */}
-      <Link to="/home" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-        <img 
-          src="/logo.svg?v=2" 
-          alt="UniPathway Logo" 
+      <NavLink to="/about" className="nav-brand">
+        <img
+          src="/logo.svg?v=2"
+          alt="UniPathway Logo"
           style={{ width: 'auto', height: '50px' }}
         />
-      </Link>
+      </NavLink>
 
-      <Link to="/home">Home</Link>
-      <Link to="/dashboard">Dashboard</Link>
-      {currentUser?.userRole === 'admin' && <Link to="/users">Users</Link>}
-      <Link to="/settings">Settings</Link>
+      <NavLink to="/home" className={navClass}>Home</NavLink>
+      <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
+      {currentUser?.userRole === 'admin' && (
+        <NavLink to="/users" className={navClass}>Users</NavLink>
+      )}
+      <NavLink to="/settings" className={navClass}>Settings</NavLink>
 
       <span>{currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : ''}</span>
 

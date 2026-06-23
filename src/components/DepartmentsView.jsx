@@ -1,4 +1,7 @@
-import { useState, useMemo } from 'react';
+import CardModal from './CardModal';
+import CarouselGrid from './CarouselGrid';
+import { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Card from './Card';
 import ConfirmDialog from './ConfirmDialog';
 
@@ -25,26 +28,301 @@ function emptyForm(universities) {
   };
 }
 
+function DepartmentFormModal({ title, form, onChange, onSubmit, onClose, error, saving, universities, dept, thresholds, createThreshold, updateThreshold, deleteThreshold }) {
+  const [uniSearch, setUniSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('details');
+
+  // Threshold tab state
+  const deptThresholds = dept ? thresholds.filter((t) => t.departmentId === dept.departmentId) : [];
+  const [thresholdForm, setThresholdForm] = useState({
+    minSekem: '',
+    sekemType: 'quantitative',
+    sekemWeights: { bagrutWeight: 0.5, psychometricWeight: 0.5 },
+    year: new Date().getFullYear()
+  });
+  const [addThreshold, setAddThreshold] = useState({
+    minSekem: '',
+    sekemType: 'quantitative',
+    sekemWeights: { bagrutWeight: 0.5, psychometricWeight: 0.5 },
+    year: new Date().getFullYear()
+  });
+  const [editingThresholdId, setEditingThresholdId] = useState(null);
+  const [thresholdError, setThresholdError] = useState('');
+  const [thresholdSaving, setThresholdSaving] = useState(false);
+  const [deletingThresholdId, setDeletingThresholdId] = useState(null);
+
+  const weights = thresholdForm.sekemWeights ?? { bagrutWeight: 0.5, psychometricWeight: 0.5 };
+  const filteredUniversities = universities.filter((u) =>
+    u.name.toLowerCase().includes(uniSearch.toLowerCase())
+  );
+
+  useEffect(() => {
+    document.body.classList.add('modal-open');
+    return () => document.body.classList.remove('modal-open');
+  }, []);
+  useEffect(() => {
+    function onKey(e) { if (e.key === 'Escape') onClose(); }
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  function startEditThreshold(t) {
+    setEditingThresholdId(t.thresholdId);
+    setThresholdForm({
+      minSekem: t.minSekem,
+      sekemType: t.sekemType,
+      sekemWeights: t.sekemWeights || { bagrutWeight: 0.5, psychometricWeight: 0.5 },
+      year: t.year
+    });
+    setThresholdError('');
+  }
+
+  async function handleSaveThreshold(e) {
+    e.preventDefault();
+    setThresholdError('');
+    const minSekem = Number(thresholdForm.minSekem);
+    const year = Number(thresholdForm.year);
+    if (!minSekem || minSekem < 0) { setThresholdError('Min Sekem must be a positive number.'); return; }
+    if (!year || year < 2000 || year > 2100) { setThresholdError('Year must be between 2000 and 2100.'); return; }
+    const basePayload = { departmentId: dept.departmentId, minSekem, sekemType: thresholdForm.sekemType, sekemWeights: weights, year };
+    console.log('Sending threshold payload:', JSON.stringify(basePayload));
+    setThresholdSaving(true);
+    try {
+      if (editingThresholdId) {
+        await updateThreshold(editingThresholdId, basePayload);
+        setEditingThresholdId(null);
+      } else {
+        await createThreshold(basePayload);
+      }
+      setThresholdForm({ minSekem: '', sekemType: 'quantitative', year: new Date().getFullYear() });
+    } catch (err) {
+      setThresholdError(err.message || 'Failed to save threshold.');
+    } finally {
+      setThresholdSaving(false);
+    }
+  }
+
+  async function handleDeleteThreshold(id) {
+    setDeletingThresholdId(id);
+    try { await deleteThreshold(id); } catch (err) { setThresholdError(err.message || 'Failed to delete.'); }
+    finally { setDeletingThresholdId(null); }
+  }
+
+  return createPortal(
+    <div className="card-modal-overlay" onClick={onClose}>
+      <div className={`card-modal user-edit-modal${!dept ? ' user-edit-modal--wide' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <button className="card-modal__close" onClick={onClose} aria-label="Close">✕</button>
+        <h2 className="card-modal__title">{title}</h2>
+
+        {/* Tabs — only show threshold tab when editing */}
+        {dept && (
+          <div className="dept-modal-tabs">
+            <button type="button" className={activeTab === 'details' ? 'dept-modal-tab--active' : ''} onClick={() => setActiveTab('details')}>Details</button>
+            <button type="button" className={activeTab === 'thresholds' ? 'dept-modal-tab--active' : ''} onClick={() => setActiveTab('thresholds')}>Admission Thresholds</button>
+          </div>
+        )}
+
+        {/* ── Details tab ── */}
+        {activeTab === 'details' && (
+          <form onSubmit={(e) => onSubmit(e, !dept ? addThreshold : undefined)} noValidate className={`user-edit-form${!dept ? ' user-edit-form--horizontal' : ''}`}>
+            <div className={!dept ? 'dept-form-left' : ''}>
+              <div className="user-edit-form__field">
+                <label>University</label>
+                <input type="text" placeholder="Search university..." value={uniSearch} onChange={(e) => setUniSearch(e.target.value)} disabled={saving} className="uni-search-input" />
+                <select value={form.universityId} onChange={(e) => onChange('universityId', e.target.value)} disabled={saving}>
+                  {filteredUniversities.map((u) => (
+                    <option key={u.universityId} value={u.universityId}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="user-edit-form__row">
+                <div className="user-edit-form__field">
+                  <label>Major Name</label>
+                  <input value={form.majorName} onChange={(e) => onChange('majorName', e.target.value)} disabled={saving} required />
+                </div>
+                <div className="user-edit-form__field">
+                  <label>Degree Type</label>
+                  <select value={form.degreeType} onChange={(e) => onChange('degreeType', e.target.value)} disabled={saving}>
+                    {DEGREE_TYPES.map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="user-edit-form__field">
+                <label>Faculty</label>
+                <input value={form.faculty} onChange={(e) => onChange('faculty', e.target.value)} disabled={saving} required />
+              </div>
+              <div className="user-edit-form__field">
+                <label>Description</label>
+                <input value={form.description} onChange={(e) => onChange('description', e.target.value)} disabled={saving} />
+              </div>
+            </div>
+
+            {/* Threshold section — only on Add, shown as right column */}
+            {!dept && (
+              <div className="dept-form-right">
+                <p className="dept-form-right__label">Initial Admission Threshold</p>
+                <div className="user-edit-form__field">
+                  <label>Min Sekem</label>
+                  <input type="number" value={addThreshold.minSekem} onChange={(e) => setAddThreshold(p => ({ ...p, minSekem: e.target.value }))} placeholder="e.g. 480" disabled={saving} required />
+                </div>
+                <div className="user-edit-form__field">
+                  <label>Type</label>
+                  <select value={addThreshold.sekemType} onChange={(e) => setAddThreshold(p => ({ ...p, sekemType: e.target.value }))} disabled={saving}>
+                    <option value="quantitative">Quantitative</option>
+                    <option value="verbal">Verbal</option>
+                    <option value="general">General</option>
+                  </select>
+                </div>
+                <div className="user-edit-form__field">
+                  <label>Year</label>
+                  <input type="number" value={addThreshold.year} onChange={(e) => setAddThreshold(p => ({ ...p, year: e.target.value }))} disabled={saving} />
+                </div>
+                <div className="user-edit-form__field">
+                  <label>Bagrut Weight</label>
+                  <input type="number" step="0.01" min="0" max="1" value={addThreshold.sekemWeights.bagrutWeight}
+                    onChange={(e) => setAddThreshold(p => ({ ...p, sekemWeights: { bagrutWeight: Number(e.target.value), psychometricWeight: Math.round((1 - Number(e.target.value)) * 1000) / 1000 } }))}
+                    disabled={saving} />
+                </div>
+                <div className="user-edit-form__field">
+                  <label>Psychometric Weight</label>
+                  <input type="number" step="0.01" min="0" max="1" value={addThreshold.sekemWeights.psychometricWeight}
+                    onChange={(e) => setAddThreshold(p => ({ ...p, sekemWeights: { psychometricWeight: Number(e.target.value), bagrutWeight: Math.round((1 - Number(e.target.value)) * 1000) / 1000 } }))}
+                    disabled={saving} />
+                </div>
+              </div>
+            )}
+
+            {error && <p role="alert">{error}</p>}
+            <div className="user-edit-form__actions">
+              <button type="button" onClick={onClose} disabled={saving}>Cancel</button>
+              <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Saving...' : title}</button>
+            </div>
+          </form>
+        )}
+
+        {/* ── Thresholds tab ── */}
+        {activeTab === 'thresholds' && (
+          <div className="threshold-tab">
+
+            {/* Existing thresholds */}
+            {deptThresholds.length === 0 ? (
+              <p className="threshold-tab__empty">No thresholds on record.</p>
+            ) : (
+              <div className="threshold-list">
+                {deptThresholds.sort((a, b) => b.year - a.year).map((t) => (
+                  <div key={t.thresholdId} className={`threshold-row${editingThresholdId === t.thresholdId ? ' threshold-row--editing' : ''}`}>
+                    {editingThresholdId === t.thresholdId ? (
+                      <form onSubmit={handleSaveThreshold} className="threshold-inline-form">
+                        <input type="number" value={thresholdForm.minSekem} onChange={(e) => setThresholdForm(p => ({ ...p, minSekem: e.target.value }))} placeholder="Min Sekem" disabled={thresholdSaving} />
+                        <select value={thresholdForm.sekemType} onChange={(e) => setThresholdForm(p => ({ ...p, sekemType: e.target.value }))} disabled={thresholdSaving}>
+                          <option value="quantitative">Quantitative</option>
+                          <option value="verbal">Verbal</option>
+                          <option value="general">General</option>
+                        </select>
+                        <input type="number" value={thresholdForm.year} onChange={(e) => setThresholdForm(p => ({ ...p, year: e.target.value }))} placeholder="Year" disabled={thresholdSaving} />
+                        <button type="submit" className="btn-primary btn-sm" disabled={thresholdSaving}>{thresholdSaving ? '...' : 'Save'}</button>
+                        <button type="button" className="btn-sm" onClick={() => setEditingThresholdId(null)}>Cancel</button>
+                      </form>
+                    ) : (
+                      <>
+                        <div className="threshold-row__info">
+                          <span className="threshold-row__sekem">{t.minSekem}</span>
+                          <span className="threshold-row__meta">{t.sekemType} · {t.year}</span>
+                        </div>
+                        <div className="threshold-row__actions">
+                          <button type="button" className="btn-sm" onClick={() => startEditThreshold(t)}>Edit</button>
+                          <button type="button" className="btn-sm btn-danger" disabled={deletingThresholdId === t.thresholdId} onClick={() => handleDeleteThreshold(t.thresholdId)}>
+                            {deletingThresholdId === t.thresholdId ? '...' : 'Delete'}
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add new threshold form */}
+            {!editingThresholdId && (
+              <form onSubmit={handleSaveThreshold} className="threshold-add-form">
+                <h4>Add Threshold</h4>
+                <div className="threshold-add-form__row">
+                  <div className="user-edit-form__field">
+                    <label>Min Sekem</label>
+                    <input type="number" value={thresholdForm.minSekem} onChange={(e) => setThresholdForm(p => ({ ...p, minSekem: e.target.value }))} placeholder="e.g. 480" disabled={thresholdSaving} />
+                  </div>
+                  <div className="user-edit-form__field">
+                    <label>Type</label>
+                    <select value={thresholdForm.sekemType} onChange={(e) => setThresholdForm(p => ({ ...p, sekemType: e.target.value }))} disabled={thresholdSaving}>
+                      <option value="quantitative">Quantitative</option>
+                      <option value="verbal">Verbal</option>
+                      <option value="general">General</option>
+                    </select>
+                  </div>
+                  <div className="user-edit-form__field">
+                    <label>Year</label>
+                    <input type="number" value={thresholdForm.year} onChange={(e) => setThresholdForm(p => ({ ...p, year: e.target.value }))} disabled={thresholdSaving} />
+                  </div>
+                </div>
+                <div className="threshold-add-form__row--2">
+                  <div className="user-edit-form__field">
+                    <label>Bagrut Weight (0–1)</label>
+                    <input type="number" step="0.01" min="0" max="1" value={weights.bagrutWeight}
+                      onChange={(e) => setThresholdForm(p => ({ ...p, sekemWeights: { bagrutWeight: Number(e.target.value), psychometricWeight: Math.round((1 - Number(e.target.value)) * 1000) / 1000 } }))}
+                      disabled={thresholdSaving} />
+                  </div>
+                  <div className="user-edit-form__field">
+                    <label>Psychometric Weight (0–1)</label>
+                    <input type="number" step="0.01" min="0" max="1" value={weights.psychometricWeight}
+                      onChange={(e) => setThresholdForm(p => ({ ...p, sekemWeights: { psychometricWeight: Number(e.target.value), bagrutWeight: Math.round((1 - Number(e.target.value)) * 1000) / 1000 } }))}
+                      disabled={thresholdSaving} />
+                  </div>
+                </div>
+                {thresholdError && <p role="alert">{thresholdError}</p>}
+                <button type="submit" className="btn-primary" disabled={thresholdSaving}>{thresholdSaving ? 'Adding...' : '+ Add Threshold'}</button>
+              </form>
+            )}
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function DepartmentsView({
   user,
   departments,
   universities,
   universityName,
   latestThreshold,
+  thresholds = [],
   isWatchlisted,
   addToWatchlist,
   createDepartment,
   updateDepartment,
-  deleteDepartment
+  deleteDepartment,
+  createThreshold,
+  updateThreshold,
+  deleteThreshold
 }) {
   const canManage = user.userRole === 'admin' || user.userRole === 'editor';
   const canDelete = user.userRole === 'admin';
+  const canUseWatchlist = user.userRole === 'user';
 
   const [pendingDepartmentId, setPendingDepartmentId] = useState(null);
   const [addErrors, setAddErrors] = useState({});
   const [sortField, setSortField] = useState('none');
   const [sortDirection, setSortDirection] = useState('asc');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [slideDir, setSlideDir] = useState('right');
+  const PAGE_SIZE = 8;
+
+  function goToPage(next) { setSlideDir(next > currentPage ? 'right' : 'left'); setCurrentPage(next); }
+  function handleSearchChange(e) { setSearchQuery(e.target.value); setSlideDir('right'); setCurrentPage(1); }
+  function handleSortField(e)    { setSortField(e.target.value);   setSlideDir('right'); setCurrentPage(1); }
+  function handleSortDir(e)      { setSortDirection(e.target.value); setSlideDir('right'); setCurrentPage(1); }
 
   // Add form state
   const [showAddForm, setShowAddForm] = useState(false);
@@ -52,14 +330,15 @@ export default function DepartmentsView({
   const [isAdding, setIsAdding] = useState(false);
   const [addFormError, setAddFormError] = useState('');
 
-  // Edit state: key is departmentId, value is form data
-  const [editingId, setEditingId] = useState(null);
+  // Edit state
+  const [editModalTarget, setEditModalTarget] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editError, setEditError] = useState('');
 
   // Delete state
   const [confirmTarget, setConfirmTarget] = useState(null); // { id, label }
+  const [modalTarget, setModalTarget] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [deleteError, setDeleteError] = useState('');
 
@@ -75,12 +354,35 @@ export default function DepartmentsView({
     }
   }
 
-  async function handleCreate(e) {
+  async function handleCreate(e, thresholdData) {
     e.preventDefault();
     setAddFormError('');
+    if (!addForm.universityId) { setAddFormError('University is required.'); return; }
+    if (!addForm.majorName?.trim()) { setAddFormError('Major Name is required.'); return; }
+    if (!addForm.faculty?.trim()) { setAddFormError('Faculty is required.'); return; }
+    if (!thresholdData.minSekem || Number(thresholdData.minSekem) <= 0) {
+      setAddFormError('Min Sekem is required and must be a positive number.');
+      return;
+    }
+    const year = Number(thresholdData.year);
+    if (!year || year < 2000 || year > 2100) {
+      setAddFormError('Year must be between 2000 and 2100.');
+      return;
+    }
+    const tw = thresholdData.sekemWeights ?? { bagrutWeight: 0.5, psychometricWeight: 0.5 };
     setIsAdding(true);
     try {
-      await createDepartment({ ...addForm, universityId: Number(addForm.universityId) });
+      const newDept = await createDepartment({ ...addForm, universityId: Number(addForm.universityId) });
+      const departmentId = newDept?.departmentId;
+      if (departmentId) {
+        await createThreshold({
+          departmentId,
+          minSekem: Number(thresholdData.minSekem),
+          sekemType: thresholdData.sekemType,
+          sekemWeights: tw,
+          year,
+        });
+      }
       setAddForm(emptyForm(universities));
       setShowAddForm(false);
     } catch (err) {
@@ -91,7 +393,7 @@ export default function DepartmentsView({
   }
 
   function startEdit(dept) {
-    setEditingId(dept.departmentId);
+    setEditModalTarget(dept);
     setEditForm({
       universityId: dept.universityId,
       majorName: dept.majorName,
@@ -107,8 +409,8 @@ export default function DepartmentsView({
     setEditError('');
     setIsSavingEdit(true);
     try {
-      await updateDepartment(editingId, { ...editForm, universityId: Number(editForm.universityId) });
-      setEditingId(null);
+      await updateDepartment(editModalTarget.departmentId, { ...editForm, universityId: Number(editForm.universityId) });
+      setEditModalTarget(null);
     } catch (err) {
       setEditError(err.message || 'Failed to update department.');
     } finally {
@@ -164,6 +466,9 @@ export default function DepartmentsView({
     });
   }, [departments, searchQuery, sortField, sortDirection, universityName, latestThreshold]);
 
+  const totalPages = Math.max(1, Math.ceil(sortedDepartments.length / PAGE_SIZE));
+  const pagedDepartments = sortedDepartments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   if (departments.length === 0) return <p>No departments available.</p>;
 
   return (
@@ -183,11 +488,11 @@ export default function DepartmentsView({
           type="text"
           placeholder="Search by name, university, faculty or degree type..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
         />
         <label>
           Sort by:{' '}
-          <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
+          <select value={sortField} onChange={handleSortField}>
             <option value="none">None</option>
             {SORT_FIELDS.map((f) => (
               <option key={f.key} value={f.key}>{f.label}</option>
@@ -197,7 +502,7 @@ export default function DepartmentsView({
         {sortField !== 'none' && (
           <label>
             Direction:{' '}
-            <select value={sortDirection} onChange={(e) => setSortDirection(e.target.value)}>
+            <select value={sortDirection} onChange={handleSortDir}>
               <option value="asc">A → Z</option>
               <option value="desc">Z → A</option>
             </select>
@@ -208,144 +513,55 @@ export default function DepartmentsView({
       {/* Add Department form — admin/editor only */}
       {canManage && (
         <div className="admin-controls">
-          <button type="button" onClick={() => setShowAddForm((v) => !v)}>
-            {showAddForm ? 'Cancel' : '+ Add Department'}
+          <button type="button" onClick={() => { setAddForm(emptyForm(universities)); setAddFormError(''); setShowAddForm(true); }}>
+            + Add Department
           </button>
-
-          {showAddForm && (
-            <form onSubmit={handleCreate}>
-              <label>
-                University
-                <select
-                  value={addForm.universityId}
-                  onChange={(e) => setAddForm((p) => ({ ...p, universityId: e.target.value }))}
-                  required
-                >
-                  {universities.map((u) => (
-                    <option key={u.universityId} value={u.universityId}>{u.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Major Name
-                <input
-                  type="text"
-                  value={addForm.majorName}
-                  onChange={(e) => setAddForm((p) => ({ ...p, majorName: e.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Degree Type
-                <select
-                  value={addForm.degreeType}
-                  onChange={(e) => setAddForm((p) => ({ ...p, degreeType: e.target.value }))}
-                >
-                  {DEGREE_TYPES.map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </label>
-              <label>
-                Faculty
-                <input
-                  type="text"
-                  value={addForm.faculty}
-                  onChange={(e) => setAddForm((p) => ({ ...p, faculty: e.target.value }))}
-                  required
-                />
-              </label>
-              <label>
-                Description
-                <input
-                  type="text"
-                  value={addForm.description}
-                  onChange={(e) => setAddForm((p) => ({ ...p, description: e.target.value }))}
-                />
-              </label>
-              {addFormError && <p role="alert">{addFormError}</p>}
-              <button type="submit" disabled={isAdding}>
-                {isAdding ? 'Adding...' : 'Add Department'}
-              </button>
-            </form>
-          )}
         </div>
+      )}
+
+      {showAddForm && (
+        <DepartmentFormModal
+          title="Add Department"
+          form={addForm}
+          onChange={(key, val) => setAddForm(p => ({ ...p, [key]: val }))}
+          onSubmit={handleCreate}
+          onClose={() => setShowAddForm(false)}
+          error={addFormError}
+          saving={isAdding}
+          universities={universities}
+        />
+      )}
+
+      {editModalTarget && (
+        <DepartmentFormModal
+          title="Edit Department"
+          form={editForm}
+          onChange={(key, val) => setEditForm(p => ({ ...p, [key]: val }))}
+          onSubmit={handleSaveEdit}
+          onClose={() => setEditModalTarget(null)}
+          error={editError}
+          saving={isSavingEdit}
+          universities={universities}
+          dept={editModalTarget}
+          thresholds={thresholds}
+          createThreshold={createThreshold}
+          updateThreshold={updateThreshold}
+          deleteThreshold={deleteThreshold}
+        />
       )}
 
       {deleteError && <p role="alert">{deleteError}</p>}
 
       {/* Department cards */}
+      <CarouselGrid page={currentPage} dir={slideDir}>
       <div className="card-grid">
         {sortedDepartments.length === 0 ? (
           <p>No departments match your search.</p>
         ) : (
-          sortedDepartments.map((dept) => {
+          pagedDepartments.map((dept) => {
             const threshold = latestThreshold(dept.departmentId);
-            const isEditing = editingId === dept.departmentId;
-
-            if (isEditing) {
-              return (
-                <div key={dept.departmentId} className="card">
-                  <form onSubmit={handleSaveEdit}>
-                    <label>
-                      University
-                      <select
-                        value={editForm.universityId}
-                        onChange={(e) => setEditForm((p) => ({ ...p, universityId: e.target.value }))}
-                        required
-                      >
-                        {universities.map((u) => (
-                          <option key={u.universityId} value={u.universityId}>{u.name}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Major Name
-                      <input
-                        type="text"
-                        value={editForm.majorName}
-                        onChange={(e) => setEditForm((p) => ({ ...p, majorName: e.target.value }))}
-                        required
-                      />
-                    </label>
-                    <label>
-                      Degree Type
-                      <select
-                        value={editForm.degreeType}
-                        onChange={(e) => setEditForm((p) => ({ ...p, degreeType: e.target.value }))}
-                      >
-                        {DEGREE_TYPES.map((d) => <option key={d} value={d}>{d}</option>)}
-                      </select>
-                    </label>
-                    <label>
-                      Faculty
-                      <input
-                        type="text"
-                        value={editForm.faculty}
-                        onChange={(e) => setEditForm((p) => ({ ...p, faculty: e.target.value }))}
-                        required
-                      />
-                    </label>
-                    <label>
-                      Description
-                      <input
-                        type="text"
-                        value={editForm.description}
-                        onChange={(e) => setEditForm((p) => ({ ...p, description: e.target.value }))}
-                      />
-                    </label>
-                    {editError && <p role="alert">{editError}</p>}
-                    <button type="submit" disabled={isSavingEdit}>
-                      {isSavingEdit ? 'Saving...' : 'Save'}
-                    </button>
-                    <button type="button" onClick={() => setEditingId(null)} disabled={isSavingEdit}>
-                      Cancel
-                    </button>
-                  </form>
-                </div>
-              );
-            }
 
             const alreadyWatchlisted = isWatchlisted(dept.departmentId);
-            const canUseWatchlist = user.userRole === 'user';
             const isPending = pendingDepartmentId === dept.departmentId;
             const addError = addErrors[dept.departmentId];
 
@@ -356,10 +572,11 @@ export default function DepartmentsView({
                 subtitle={universityName(dept.universityId)}
                 meta={`${dept.degreeType} · ${dept.faculty}`}
                 description={dept.description}
+                onClick={() => setModalTarget({ dept, alreadyWatchlisted, isPending, addError })}
                 actions={
                   <>
                     {threshold ? (
-                      <p>Min Sekem: {threshold.minSekem} ({threshold.sekemType}, {threshold.year})</p>
+                      <p>Min Sekem: {threshold.minSekem}<br/><span className="threshold-meta">{threshold.sekemType}, {threshold.year}</span></p>
                     ) : (
                       <p>No admission threshold on record.</p>
                     )}
@@ -368,14 +585,14 @@ export default function DepartmentsView({
                       <button
                         type="button"
                         disabled={alreadyWatchlisted || isPending}
-                        onClick={() => handleAddToWatchlist(dept.departmentId)}
+                        onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(dept.departmentId); }}
                       >
                         {alreadyWatchlisted ? 'Already in Watchlist' : isPending ? 'Adding...' : 'Add to Watchlist'}
                       </button>
                     )}
 
                     {canManage && (
-                      <button type="button" onClick={() => startEdit(dept)}>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(dept); }}>
                         Edit
                       </button>
                     )}
@@ -384,7 +601,7 @@ export default function DepartmentsView({
                       <button
                         type="button"
                         disabled={deletingId === dept.departmentId}
-                        onClick={() => setConfirmTarget({ id: dept.departmentId, label: dept.majorName })}
+                        onClick={(e) => { e.stopPropagation(); setConfirmTarget({ id: dept.departmentId, label: dept.majorName }); }}
                       >
                         {deletingId === dept.departmentId ? 'Deleting...' : 'Delete'}
                       </button>
@@ -398,6 +615,88 @@ export default function DepartmentsView({
           })
         )}
       </div>
+      </CarouselGrid>
+
+      {modalTarget && (() => {
+        const { dept, alreadyWatchlisted: aw, isPending: ip, addError: ae } = modalTarget;
+        const deptThresholds = thresholds
+          .filter((t) => t.departmentId === dept.departmentId)
+          .sort((a, b) => b.year - a.year);
+        return (
+          <CardModal
+            title={dept.majorName}
+            subtitle={universityName(dept.universityId)}
+            meta={`${dept.degreeType} · ${dept.faculty}`}
+            description={dept.description}
+            onClose={() => setModalTarget(null)}
+            actions={
+              <>
+                {deptThresholds.length > 0 ? (
+                  <div className="modal-thresholds">
+                    <p className="modal-thresholds__title">Admission Thresholds</p>
+                    <div className="modal-thresholds__list">
+                      {deptThresholds.map((t) => (
+                        <div key={t.thresholdId} className={`modal-threshold-row${t === deptThresholds[0] ? ' modal-threshold-row--latest' : ''}`}>
+                          <span className="modal-threshold-row__sekem">{t.minSekem}</span>
+                          <span className="modal-threshold-row__meta">
+                            <span className="threshold-meta">{t.sekemType}</span>
+                            <span className="modal-threshold-row__year">{t.year}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p>No admission threshold on record.</p>
+                )}
+                {canUseWatchlist && (
+                  <button
+                    type="button"
+                    disabled={aw || ip}
+                    onClick={() => { handleAddToWatchlist(dept.departmentId); setModalTarget(null); }}
+                  >
+                    {aw ? 'Already in Watchlist' : ip ? 'Adding...' : 'Add to Watchlist'}
+                  </button>
+                )}
+                {ae && <p role="alert">{ae}</p>}
+              </>
+            }
+          />
+        );
+      })()}
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            type="button"
+            className="pagination__btn"
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            ‹ Prev
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              type="button"
+              className={`pagination__btn${page === currentPage ? ' pagination__btn--active' : ''}`}
+              onClick={() => goToPage(page)}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            className="pagination__btn"
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next ›
+          </button>
+        </div>
+      )}
     </div>
   );
 }

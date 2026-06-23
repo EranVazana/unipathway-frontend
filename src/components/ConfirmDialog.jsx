@@ -1,18 +1,22 @@
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
+
 export default function ConfirmDialog({ message, onConfirm, onCancel }) {
-  return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-      backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', zIndex: 1000
-    }}>
-      <div style={{
-        background: 'white', padding: '24px', borderRadius: '8px',
-        maxWidth: '400px', width: '90%', textAlign: 'center'
-      }}>
+  useEffect(() => {
+    document.body.classList.add('modal-open');
+    return () => document.body.classList.remove('modal-open');
+  }, []);
+
+  return createPortal(
+    <div className="confirm-dialog-overlay">
+      <div className="confirm-dialog">
         <p>{message}</p>
-        <button type="button" onClick={onConfirm}>Confirm</button>
-        <button type="button" onClick={onCancel} style={{ marginLeft: '12px' }}>Cancel</button>
+        <div className="confirm-dialog-actions">
+          <button type="button" onClick={onCancel}>Cancel</button>
+          <button type="button" className="btn-primary" onClick={onConfirm}>Confirm</button>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
