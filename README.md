@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# UniPathway — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React.js frontend for UniPathway, a smart academic consultant platform that helps Israeli students make confident university decisions by comparing their Sekem scores against real admission thresholds.
 
-## Available Scripts
+Built as part of the Web Development Environments course at Ben-Gurion University of the Negev.
 
-In the project directory, you can run:
+**Team:** Eran Vazana & Omri Hershkovich
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js (v16 or higher)
+- The UniPathway backend server running locally (Assignment 2)
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Installation
 
-### `npm run build`
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Running the App
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm start
+```
 
-### `npm run eject`
+The app will open at [http://localhost:5173](http://localhost:5173).
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## API Base URL
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The frontend connects to the backend REST API at:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+http://localhost:3000
+```
 
-## Learn More
+Make sure the backend server from Assignment 2 is running on port 3000 before using the app.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Pages & Features
 
-### Code Splitting
+| Page | Route | Description |
+|------|-------|-------------|
+| Login | `/login` | Email + password login with validation |
+| Home | `/home` | Browse universities and departments, compare programs |
+| Dashboard | `/dashboard` | Watchlist, academic scores, recommendations, infographics |
+| Settings | `/settings` | Edit profile info and change password |
+| Users | `/users` | Admin user management table |
+| About | `/about` | Project overview and feature summary |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+All pages except `/login` are protected and require authentication.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Project Structure
 
-### Making a Progressive Web App
+```
+src/
+├── components/     # Reusable UI elements (Navbar, Footer, Card, DataTable, ...)
+├── pages/          # Route views (Login, Home, Dashboard, Settings, ...)
+├── services/       # API communication (one file per resource)
+├── context/        # Auth context
+├── hooks/          # useAcademicData shared data hook
+├── styles/         # CSS design system and tokens
+└── App.js          # Main entry point and routing
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## Screenshots
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Screenshots of the running application (Login, Dashboard, Table, Settings) are included in the `screenshots/` folder of the submitted zip.
