@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { academicScoresService } from '../services/academicScoresService';
+import { academicScoresService } from '../../services/academicScoresService';
 
 export default function TopRecommendations({ watchlist, departments, universityName, latestThreshold, user }) {
   const [academicScores, setAcademicScores] = useState(null);

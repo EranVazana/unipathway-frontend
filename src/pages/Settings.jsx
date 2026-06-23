@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import BasicSettingsView from '../components/BasicSettingsView';
-import PasswordSettingsView from '../components/PasswordSettingsView';
+import BasicSettingsView from '../components/settings/BasicSettingsView';
+import PasswordSettingsView from '../components/settings/PasswordSettingsView';
 
 const TABS = [
   { key: 'basic', label: 'Basic' },

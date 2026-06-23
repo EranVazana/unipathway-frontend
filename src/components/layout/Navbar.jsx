@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { usersService } from '../services/usersService';
+import { useAuth } from '../../context/AuthContext';
+import { usersService } from '../../services/usersService';
 
 function navClass({ isActive }) {
   return isActive ? 'nav-link nav-link--active' : 'nav-link';

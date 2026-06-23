@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { settingsService } from '../services/settingsService';
+import { settingsService } from '../../services/settingsService';
 
 export default function PasswordSettingsView() {
   const [form, setForm] = useState({ password: '', confirmPassword: '' });
@@ -77,12 +77,13 @@ export default function PasswordSettingsView() {
         {fieldErrors.confirmPassword && <span role="alert">{fieldErrors.confirmPassword}</span>}
       </div>
 
-      {saveError && <p role="alert">{saveError}</p>}
-      {saveSuccess && <p>Password updated successfully.</p>}
-
-      <button type="submit" disabled={isSaving}>
-        {isSaving ? 'Saving...' : 'Update Password'}
-      </button>
+      <div className="password-settings-footer">
+        {saveError && <p role="alert">{saveError}</p>}
+        {saveSuccess && <p>Password updated successfully.</p>}
+        <button type="submit" disabled={isSaving}>
+          {isSaving ? 'Saving...' : 'Update Password'}
+        </button>
+      </div>
     </form>
   );
 }

@@ -1,11 +1,11 @@
-import PageSpinner from './../components/PageSpinner';
-import PageError from './../components/PageError';
+import PageSpinner from './../components/ui/PageSpinner';
+import PageError from './../components/ui/PageError';
 import { useState } from 'react';
 import { useAcademicData } from '../hooks/useAcademicData';
-import WatchlistView from '../components/WatchlistView';
-import AcademicScoresView from '../components/AcademicScoresView';
-import InfoGraphic from '../components/InfoGraphic';
-import TopRecommendations from '../components/TopRecommendations';
+import WatchlistView from '../components/views/WatchlistView';
+import AcademicScoresView from '../components/views/AcademicScoresView';
+import InfoGraphic from '../components/views/InfoGraphic';
+import TopRecommendations from '../components/views/TopRecommendations';
 
 const TABS = [
   { key: 'watchlist',       label: 'My Watchlist' },

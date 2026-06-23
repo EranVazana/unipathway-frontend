@@ -77,32 +77,27 @@ export default function Login() {
       <div className="login-split-card">
         
         {/* Left Side: Welcome Panel */}
-        <div className="login-welcome-panel" style={{ padding: 0 }}>
+        <div className="login-welcome-panel">
           <img
             src={`/welcome-banner.svg?v=5&t=${bannerKey}`}
             alt="Welcome to UniPathway"
             onMouseEnter={handleBannerHover}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              objectPosition: 'bottom'
-            }}
+            className="login-banner-img"
           />
         </div>
 
         {/* Right Side: The Form */}
         <form onSubmit={handleSubmit} noValidate>
           
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '8px' }}>
+          <div className="login-logo-wrap">
             <img 
               src="/logo.svg"
               alt="UniPathway Logo" 
-              style={{ width: '600px', height: 'auto', margin: '0 auto', marginBottom: '16px', display: 'block' }}
+              className="login-logo"
             />
           </div>
           
-          <p style={{ textAlign: 'center', color: 'var(--ink-500)', marginBottom: '22px' }}>
+          <p>
             Sign in to continue
           </p>
 
@@ -120,27 +115,19 @@ export default function Login() {
 
           <div>
             <label htmlFor="password">Password</label>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div className="login-password-wrap">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
-                style={{ width: '100%', paddingRight: '40px' }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isSubmitting}
-                className="btn-ghost"
-                style={{
-                  position: 'absolute',
-                  right: '4px',
-                  padding: '6px',
-                  minWidth: 'auto',
-                  color: 'var(--ink-500)'
-                }}
+                className="btn-ghost login-password-toggle"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (

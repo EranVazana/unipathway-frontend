@@ -1,9 +1,9 @@
-import CardModal from './CardModal';
-import CarouselGrid from './CarouselGrid';
+import CardModal from '../ui/CardModal';
+import CarouselGrid from '../ui/CarouselGrid';
 import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import Card from './Card';
-import ConfirmDialog from './ConfirmDialog';
+import Card from '../ui/Card';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const SORT_FIELDS = [
   { key: 'majorName', label: 'Name' },

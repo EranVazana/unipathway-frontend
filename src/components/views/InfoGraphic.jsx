@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from 'recharts';
-import { academicScoresService } from '../services/academicScoresService';
+import { academicScoresService } from '../../services/academicScoresService';
 
 const C = {
   primary: '#1a3a6b',
@@ -94,6 +94,10 @@ function SingleGauge({ label, value, max }) {
 }
 
 function SekemGauge({ watchlist, latestThreshold }) {
+  const ALL_TYPES = ['quantitative', 'verbal', 'general'];
+  const DEFAULT_VALUE = 0;
+  const DEFAULT_MAX = 800;
+
   const byType = {};
   for (const w of watchlist) {
     if (!w.userSekem) continue;
@@ -104,19 +108,19 @@ function SekemGauge({ watchlist, latestThreshold }) {
     if (t?.minSekem) byType[type].maxMin = Math.max(byType[type].maxMin, t.minSekem);
   }
 
-  if (!Object.keys(byType).length) return <Card title="Sekem Scores by Type"><Empty msg="No Sekem scores yet." /></Card>;
-
   const TYPE_COLOR = { quantitative: C.primary, verbal: C.blue2, general: C.accent };
 
   return (
     <>
-      {Object.entries(byType).map(([type, { vals, maxMin }]) => {
-        const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
-        const max = Math.ceil(Math.max(maxMin, avg) / 100) * 100;
+      {ALL_TYPES.map((type) => {
+        const data = byType[type];
+        const avg = data ? data.vals.reduce((s, v) => s + v, 0) / data.vals.length : DEFAULT_VALUE;
+        const max = data ? Math.ceil(Math.max(data.maxMin, avg) / 100) * 100 : DEFAULT_MAX;
+        const label = data ? `Avg ${data.vals.length} Dept${data.vals.length !== 1 ? 's' : ''}` : 'No Data';
         return (
           <Card key={type} title={`Sekem — ${type.charAt(0).toUpperCase() + type.slice(1)}`}>
             <SingleGauge
-              label={`Avg ${vals.length} Dept${vals.length !== 1 ? 's' : ''}`}
+              label={label}
               value={avg}
               max={max}
               color={TYPE_COLOR[type] ?? C.neutral}

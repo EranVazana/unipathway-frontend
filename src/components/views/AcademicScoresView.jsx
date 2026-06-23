@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { academicScoresService } from '../services/academicScoresService';
+import { useAuth } from '../../context/AuthContext';
+import { academicScoresService } from '../../services/academicScoresService';
 
 const MANDATORY_SUBJECTS = [
   'bibleStudies', 'literature', 'hebrewExpression',

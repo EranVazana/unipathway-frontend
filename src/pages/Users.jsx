@@ -1,10 +1,10 @@
-import PageSpinner from './../components/PageSpinner';
-import PageError from './../components/PageError';
+import PageSpinner from './../components/ui/PageSpinner';
+import PageError from './../components/ui/PageError';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { usersService } from '../services/usersService';
-import ConfirmDialog from '../components/ConfirmDialog';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 import { createPortal } from 'react-dom';
 
 const VALID_ROLES = ['admin', 'editor', 'user'];

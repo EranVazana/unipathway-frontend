@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { academicScoresService } from '../services/academicScoresService';
+import { academicScoresService } from '../../services/academicScoresService';
 
 const MAX_COMPARE = 3;
 

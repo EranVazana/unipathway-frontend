@@ -1,10 +1,10 @@
-import PageSpinner from './../components/PageSpinner';
-import PageError from './../components/PageError';
+import PageSpinner from './../components/ui/PageSpinner';
+import PageError from './../components/ui/PageError';
 import { useState } from 'react';
 import { useAcademicData } from '../hooks/useAcademicData';
-import DepartmentsView from '../components/DepartmentsView';
-import UniversitiesView from '../components/UniversitiesView';
-import CompareView from '../components/CompareView';
+import DepartmentsView from '../components/views/DepartmentsView';
+import UniversitiesView from '../components/views/UniversitiesView';
+import CompareView from '../components/views/CompareView';
 
 const TABS = [
   { key: 'universities', label: 'Universities' },

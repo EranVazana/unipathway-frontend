@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import DataTable from './DataTable';
-import ConfirmDialog from './ConfirmDialog';
+import DataTable from '../ui/DataTable';
+import ConfirmDialog from '../ui/ConfirmDialog';
 
 const STATUS_OPTIONS = ['Interested', 'Applied', 'Accepted', 'Rejected'];
 const SORT_FIELDS = [
