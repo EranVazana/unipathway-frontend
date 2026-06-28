@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { settingsService } from '../services/settingsService';
+import { settingsService } from '../../services/settingsService';
+import PageSpinner from '../ui/PageSpinner';
+import PageError from '../ui/PageError';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,8 +71,8 @@ export default function BasicSettingsView() {
     }
   }
 
-  if (isLoading) return <p>Loading settings...</p>;
-  if (loadError) return <p role="alert">{loadError}</p>;
+  if (isLoading) return <PageSpinner message="Loading settings..." />;
+  if (loadError) return <PageError message={loadError} />;
 
   return (
     <form onSubmit={handleSave} noValidate>

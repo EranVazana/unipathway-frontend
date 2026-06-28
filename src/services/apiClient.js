@@ -20,14 +20,19 @@ function getAuthHeaders() {
 // Core request helper. Unwraps the backend's { success, data, error } envelope
 // and throws on failure so callers can use try/catch instead of checking success each time.
 async function request(path, { method = 'GET', body } = {}) {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeaders()
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
+  let response;
+  try {
+    response = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders()
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch {
+    throw new Error('Could not reach the server. Please check your connection and try again.');
+  }
 
   // Backend may return non-JSON on network-level failures; guard against that
   let payload;

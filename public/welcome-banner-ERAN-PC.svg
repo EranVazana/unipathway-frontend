@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 700" width="100%" height="100%" overflow="hidden">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="100%" stop-color="#F59E0B" />
+    </linearGradient>
+
+    <style>
+      /* Background drift (removed scale to prevent boundary jitters) */
+      @keyframes breathe {
+        0%, 100% { transform: translate(0,0); }
+        50% { transform: translate(-10px, 10px); }
+      }
+      
+      /* Continuous floating effect */
+      @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        25% { transform: translateY(-6px) rotate(1deg); }
+        50% { transform: translateY(-10px) rotate(0deg); }
+        75% { transform: translateY(-6px) rotate(-1deg); }
+      }
+      
+      /* Slide up with an elastic bounce */
+      @keyframes bounceUp {
+        0% { opacity: 0; transform: translateY(40px); }
+        60% { opacity: 1; transform: translateY(-10px); }
+        80% { transform: translateY(5px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      
+      /* Drawing effect for the stroke line */
+      @keyframes drawLine {
+        from { stroke-dashoffset: 400; }
+        to { stroke-dashoffset: 0; }
+      }
+
+      /* Safe pulse using only opacity */
+      @keyframes popIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+      @keyframes pulseContinuous {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+
+      /* Applying animations */
+      .bg-circle-1 { animation: breathe 12s ease-in-out infinite; }
+      .bg-circle-2 { animation: breathe 15s ease-in-out infinite reverse; }
+
+      .cap { animation: float 4.5s ease-in-out infinite; }
+      
+      .pillar-1 { opacity: 0; animation: bounceUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s forwards; }
+      .pillar-2 { opacity: 0; animation: bounceUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.3s forwards; }
+      .pillar-3 { opacity: 0; animation: bounceUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards; }
+      
+      .trend-line { 
+        stroke-dasharray: 400; 
+        stroke-dashoffset: 400; 
+        animation: drawLine 1.5s ease-in-out 0.8s forwards; 
+      }
+      
+      .node { opacity: 0; }
+      .node-1 { animation: popIn 0.3s ease-out 1.0s forwards, pulseContinuous 2.5s ease-in-out 1.3s infinite; }
+      .node-2 { animation: popIn 0.3s ease-out 1.2s forwards, pulseContinuous 2.5s ease-in-out 1.5s infinite; }
+      .node-3 { animation: popIn 0.3s ease-out 1.4s forwards, pulseContinuous 2.5s ease-in-out 1.7s infinite; }
+      .node-4 { animation: popIn 0.3s ease-out 1.6s forwards, pulseContinuous 2.5s ease-in-out 1.9s infinite; }
+
+      .text-fade { opacity: 0; animation: bounceUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+      .text-title { animation-delay: 0.3s; }
+      .text-brand { animation-delay: 0.5s; }
+      .text-subtitle { animation-delay: 0.7s; }
+      .text-body { animation-delay: 0.9s; }
+      
+      .divider-line { 
+        stroke-dasharray: 60; 
+        stroke-dashoffset: 60; 
+        animation: drawLine 0.8s ease-out 0.8s forwards; 
+      }
+    </style>
+  </defs>
+
+  <circle class="bg-circle-1" cx="450" cy="100" r="200" fill="#244a82" opacity="0.2" />
+  <circle class="bg-circle-2" cx="50" cy="550" r="150" fill="#244a82" opacity="0.15" />
+  <circle cx="250" cy="300" r="300" fill="none" stroke="#2f5d9e" stroke-width="1" opacity="0.2" />
+
+  <g transform="translate(130, 80)">
+    <rect class="pillar-1" x="20" y="110" width="40" height="90" rx="6" fill="#2f5d9e" />
+    <rect class="pillar-2" x="80" y="60" width="40" height="140" rx="6" fill="#2f5d9e" />
+    <rect class="pillar-3" x="140" y="10" width="40" height="190" rx="6" fill="url(#goldGrad)" />
+    
+    <g class="cap" transform="translate(60, -30)">
+      <polygon points="60,10 120,35 60,60 0,35" fill="#0F172A" />
+      <path d="M 20,45 L 20,80 A 40,20 0 0,0 100,80 L 100,45" fill="none" stroke="#0F172A" stroke-width="8"/>
+      <line x1="120" y1="35" x2="120" y2="75" stroke="#F59E0B" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="120" cy="80" r="7" fill="#F59E0B"/>
+    </g>
+
+    <path class="trend-line" d="M -20,150 L 40,100 L 100,115 L 160,20" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+    <circle class="node node-1" cx="-20" cy="150" r="7" fill="#FFFFFF" />
+    <circle class="node node-2" cx="40" cy="100" r="7" fill="#FFFFFF" />
+    <circle class="node node-3" cx="100" cy="115" r="7" fill="#FFFFFF" />
+    <circle class="node node-4" cx="160" cy="20" r="9" fill="#FFFFFF" />
+  </g>
+
+  <g transform="translate(50, 340)" font-family="'Inter', -apple-system, sans-serif">
+    <text class="text-fade text-title" x="0" y="0" font-size="36" font-weight="700" fill="#FFFFFF" letter-spacing="-0.02em">Welcome to</text>
+    <text class="text-fade text-brand" x="0" y="45" font-size="42" font-weight="800" fill="url(#goldGrad)" letter-spacing="-0.02em">UniPathway</text>
+    <text class="text-fade text-subtitle" x="0" y="90" font-size="18" font-weight="600" fill="#8aa6cc" letter-spacing="0.05em" text-transform="uppercase">Your Smart Academic Consultant</text>
+    <line class="divider-line" x1="0" y1="120" x2="60" y2="120" stroke="url(#goldGrad)" stroke-width="4" stroke-linecap="round"/>
+    <text class="text-fade text-body" x="0" y="160" font-size="17" font-weight="400" fill="#dde6f2">
+      <tspan x="0" dy="0">Take the guesswork out of university admissions.</tspan>
+      <tspan x="0" dy="28">Calculate your Sekem scores, compare departments</tspan>
+      <tspan x="0" dy="28">side-by-side, and get AI-driven insights to</tspan>
+      <tspan x="0" dy="28">maximize your chances of acceptance in Israel.</tspan>
+    </text>
+  </g>
+</svg>
