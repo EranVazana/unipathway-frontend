@@ -4,7 +4,6 @@ import App from './App';
 
 import './styles/styles.css';
 import './styles/main.css';
-import './styles/overrides.css';
 
 import reportWebVitals from './reportWebVitals';
 

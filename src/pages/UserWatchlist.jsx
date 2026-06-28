@@ -1,5 +1,5 @@
-import PageSpinner from './../components/PageSpinner';
-import PageError from './../components/PageError';
+import PageSpinner from './../components/ui/PageSpinner';
+import PageError from './../components/ui/PageError';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { usersService } from '../services/usersService';
@@ -7,8 +7,8 @@ import { watchlistService } from '../services/watchlistService';
 import { departmentsService } from '../services/departmentsService';
 import { universitiesService } from '../services/universitiesService';
 import { admissionThresholdsService } from '../services/admissionThresholdsService';
-import DataTable from '../components/DataTable';
-import ConfirmDialog from '../components/ConfirmDialog';
+import DataTable from '../components/ui/DataTable';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function UserWatchlist() {
   const { id } = useParams();

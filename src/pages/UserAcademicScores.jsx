@@ -1,9 +1,9 @@
-import PageSpinner from './../components/PageSpinner';
-import PageError from './../components/PageError';
+import PageSpinner from './../components/ui/PageSpinner';
+import PageError from './../components/ui/PageError';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { usersService } from '../services/usersService';
-import AcademicScoresView from '../components/AcademicScoresView';
+import AcademicScoresView from '../components/views/AcademicScoresView';
 
 export default function UserAcademicScores() {
   const { id } = useParams();

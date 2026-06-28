@@ -252,6 +252,15 @@ footer p:last-child { color: rgba(255,255,255,.55); }
   border-bottom-color: var(--accent);
 }
 
+/* Password tab — center the submit button and status messages */
+.password-settings-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 /* ============================================================================
    BUTTONS
    Hierarchy with ZERO markup changes:
@@ -665,6 +674,46 @@ table .card-actions, table td > * + * { margin-top: 0; }
 .login-split-card form > div { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .login-split-card form > div label { font-weight: 500; }
 .login-split-card form button[type="submit"] { margin-top: 8px; padding: 12px; font-size: 1rem; }
+
+/* Welcome panel image fills the entire panel */
+.login-welcome-panel { padding: 0; }
+.login-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+}
+
+/* Logo above the form */
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.login-logo {
+  width: 600px;
+  height: auto;
+  margin: 0 auto 16px;
+  display: block;
+}
+
+/* Password field with toggle button */
+.login-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.login-password-wrap input {
+  width: 100%;
+  padding-right: 40px;
+}
+.login-password-toggle {
+  position: absolute;
+  right: 4px;
+  padding: 6px;
+  min-width: auto;
+  color: var(--ink-500);
+}
 
 /* Responsive: Stack it and hide the image panel on small screens */
 @media (max-width: 768px) {
@@ -1683,3 +1732,114 @@ thead th:first-child { text-align: left; }
 .compare-badge { padding: 3px 10px; border-radius: var(--radius-pill); font-size: 0.8125rem; font-weight: 600; }
 
 .compare-empty { text-align: center; padding: 48px; color: var(--ink-400); font-size: 1rem; }
+
+/* ============================================================================
+   OVERRIDES — targeted specificity fixes and layout corrections
+   Previously in overrides.css; consolidated here to keep all app styles in
+   one place. These rules use !important only where lower-specificity rules
+   in this file or browser defaults would otherwise win.
+   ============================================================================ */
+
+.status-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+
+  display: inline-block !important;
+  box-sizing: border-box !important;
+
+  border: 0 !important;
+  border-radius: 999px !important;
+
+  width: 142px !important;
+  min-width: 142px !important;
+  max-width: 142px !important;
+
+  padding: 6px 36px 6px 14px !important;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.02em !important;
+  cursor: pointer !important;
+
+  text-align: center !important;
+  text-align-last: center !important;
+  white-space: nowrap !important;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 19px) 50%,
+    calc(100% - 14px) 50% !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+}
+
+.status-select:focus {
+  outline: none !important;
+  box-shadow: var(--focus-ring) !important;
+}
+
+.status-select:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+.status-interested {
+  background-color: #fff4dc !important;
+  color: #9a6a00 !important;
+}
+
+.status-applied {
+  background-color: #eaf2ff !important;
+  color: #0b3a78 !important;
+}
+
+.status-accepted {
+  background-color: #e6f7ef !important;
+  color: #167c5c !important;
+}
+
+.status-rejected {
+  background-color: #ffe9e2 !important;
+  color: #b33a24 !important;
+}
+
+.up-table th:nth-child(3),
+.up-table td:nth-child(3),
+table th:nth-child(3),
+table td:nth-child(3) {
+  width: 180px !important;
+  min-width: 180px !important;
+}
+
+/* Page centering */
+.home-page,
+.dashboard-page,
+.settings-page {
+  max-width: 1120px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+/* Center page titles */
+.home-page h1,
+.dashboard-page h1,
+.settings-page h1 {
+  text-align: center !important;
+}
+
+/* Center tab navigation */
+.home-tabs,
+.dashboard-tabs,
+.settings-tabs {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}

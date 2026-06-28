@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/layout/ProtectedRoute';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -9,6 +9,7 @@ import Users from './pages/Users';
 import UserAcademicScores from './pages/UserAcademicScores';
 import UserWatchlist from './pages/UserWatchlist';
 import About from './pages/About';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/users/:id/academic-scores" element={<ProtectedRoute><UserAcademicScores /></ProtectedRoute>} />
           <Route path="/users/:id/watchlist" element={<ProtectedRoute><UserWatchlist /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

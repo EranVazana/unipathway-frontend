@@ -1,8 +1,8 @@
-/* UniPathway — Reusable component primitives
-   Namespaced `up-*` classes used by the React component library (components/).
-   Token-driven; safe to ship to any consumer that links styles.css.
-   (The product app itself is styled via src/styles/main.css on its own
-   semantic classNames — these primitives are the abstracted, reusable layer.) */
+/* UniPathway — Global reusable component primitives
+   Namespaced `up-*` classes for generic, app-agnostic UI building blocks:
+   buttons, fields, cards, badges, tabs, dialogs, and tables.
+   These are token-driven and layout-neutral — no page-specific rules here.
+   Page and feature styles live in main.css. */
 
 /* ---------- Button ---------- */
 .up-btn {
