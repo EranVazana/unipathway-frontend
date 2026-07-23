@@ -23,8 +23,6 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      <h1>{data.user.firstName}&apos;s Dashboard</h1>
-
       <nav className="dashboard-tabs">
         {TABS.map((tab) => (
           <button

@@ -308,7 +308,7 @@ export default function DepartmentsView({
 }) {
   const canManage = user.userRole === 'admin' || user.userRole === 'editor';
   const canDelete = user.userRole === 'admin';
-  const canUseWatchlist = user.userRole === 'user';
+  const canUseWatchlist = true;
 
   const [pendingDepartmentId, setPendingDepartmentId] = useState(null);
   const [addErrors, setAddErrors] = useState({});
@@ -574,7 +574,7 @@ export default function DepartmentsView({
                 description={dept.description}
                 onClick={() => setModalTarget({ dept, alreadyWatchlisted, isPending, addError })}
                 actions={
-                  <>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
                     {threshold ? (
                       <p>Min Sekem: {threshold.minSekem}<br/><span className="threshold-meta">{threshold.sekemType}, {threshold.year}</span></p>
                     ) : (
@@ -584,6 +584,7 @@ export default function DepartmentsView({
                     {canUseWatchlist && (
                       <button
                         type="button"
+                        style={{ width: '100%' }}
                         disabled={alreadyWatchlisted || isPending}
                         onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(dept.departmentId); }}
                       >
@@ -591,24 +592,28 @@ export default function DepartmentsView({
                       </button>
                     )}
 
-                    {canManage && (
-                      <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(dept); }}>
-                        Edit
-                      </button>
-                    )}
-
-                    {canDelete && (
-                      <button
-                        type="button"
-                        disabled={deletingId === dept.departmentId}
-                        onClick={(e) => { e.stopPropagation(); setConfirmTarget({ id: dept.departmentId, label: dept.majorName }); }}
-                      >
-                        {deletingId === dept.departmentId ? 'Deleting...' : 'Delete'}
-                      </button>
+                    {(canManage || canDelete) && (
+                      <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                        {canManage && (
+                          <button type="button" style={{ flex: 1 }} onClick={(e) => { e.stopPropagation(); startEdit(dept); }}>
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            type="button"
+                            style={{ flex: 1 }}
+                            disabled={deletingId === dept.departmentId}
+                            onClick={(e) => { e.stopPropagation(); setConfirmTarget({ id: dept.departmentId, label: dept.majorName }); }}
+                          >
+                            {deletingId === dept.departmentId ? 'Deleting...' : 'Delete'}
+                          </button>
+                        )}
+                      </div>
                     )}
 
                     {addError && <p role="alert">{addError}</p>}
-                  </>
+                  </div>
                 }
               />
             );
@@ -652,6 +657,7 @@ export default function DepartmentsView({
                 {canUseWatchlist && (
                   <button
                     type="button"
+                    style={{ display: 'block', width: '100%' }}
                     disabled={aw || ip}
                     onClick={() => { handleAddToWatchlist(dept.departmentId); setModalTarget(null); }}
                   >

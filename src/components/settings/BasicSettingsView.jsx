@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { settingsService } from '../../services/settingsService';
+import { useAuth } from '../../context/AuthContext';
 import PageSpinner from '../ui/PageSpinner';
 import PageError from '../ui/PageError';
 
@@ -7,6 +8,7 @@ const USERNAME_REGEX = /^[a-zA-Z0-9_]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function BasicSettingsView() {
+  const { updateUser } = useAuth();
   const [form, setForm] = useState({ username: '', email: '', theme: 'light' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +35,11 @@ export default function BasicSettingsView() {
     setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     setSaveSuccess(false);
     setSaveError('');
+
+    // Live theme preview — apply immediately so the user sees it before saving
+    if (name === 'theme') {
+      document.documentElement.setAttribute('data-theme', value);
+    }
   }
 
   function validate() {
@@ -59,13 +66,17 @@ export default function BasicSettingsView() {
     setIsSaving(true);
     try {
       await settingsService.updateSettings({ username: form.username, email: form.email, theme: form.theme });
+      // Sync the saved theme back to AuthContext so it persists across navigation
+      updateUser({ username: form.username, email: form.email, theme: form.theme });
       setSaveSuccess(true);
     } catch (err) {
+      // If save failed, revert the live theme preview
       if (err.details?.field) {
         setFieldErrors((prev) => ({ ...prev, [err.details.field]: err.message }));
       } else {
         setSaveError(err.message || 'Failed to save settings.');
       }
+      document.documentElement.setAttribute('data-theme', form.theme);
     } finally {
       setIsSaving(false);
     }

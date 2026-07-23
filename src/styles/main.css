@@ -662,18 +662,118 @@ table .card-actions, table td > * + * { margin-top: 0; }
 /* Right side: The form */
 .login-split-card form {
   flex: 1;
-  padding: 48px 40px;
+  padding: 48px 52px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 6px;
+  justify-content: flex-start; /* flex-start + spacers = safe centering that scrolls */
+  gap: 0;
   background: var(--paper);
+  overflow-y: auto; /* lets signup content scroll without clipping the logo */
+}
+/* Push content to center when form is short; collapse gracefully when content overflows */
+.login-split-card form::before,
+.login-split-card form::after {
+  content: '';
+  flex: 1 1 0;
 }
 
-.login-split-card form > p { text-align: center; color: var(--ink-500); margin-bottom: 22px; }
-.login-split-card form > div { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.login-split-card form > div label { font-weight: 500; }
-.login-split-card form button[type="submit"] { margin-top: 8px; padding: 12px; font-size: 1rem; }
+/* Subtitle line */
+.login-split-card form > p {
+  text-align: center;
+  color: var(--ink-400);
+  font-size: 0.9375rem;
+  margin-bottom: 28px;
+}
+
+/* Each field group — more vertical breathing room */
+.login-split-card form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.login-split-card form > div label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-700);
+}
+
+/* Inputs inside the form — roomier, softer, cleaner focus */
+.login-split-card form input {
+  padding: 13px 16px;
+  font-size: 0.9375rem;
+  border: 1.5px solid var(--line-300);
+  border-radius: var(--radius);
+  background: var(--canvas);
+  color: var(--ink-900);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+  width: 100%;
+}
+.login-split-card form input::placeholder {
+  color: var(--ink-400);
+  font-size: 0.875rem;
+}
+.login-split-card form input:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  background: var(--paper);
+  box-shadow: 0 0 0 3px rgba(47, 93, 158, 0.15);
+}
+.login-split-card form input:disabled {
+  background: var(--canvas-2);
+  color: var(--ink-400);
+  cursor: not-allowed;
+}
+
+/* Submit button — full-width, taller */
+.login-split-card form button[type="submit"] {
+  margin-top: 10px;
+  padding: 14px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+/* "Don't have an account? Sign up" toggle */
+.login-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: var(--gold-600) !important;
+}
+
+/* Inline text-only link button for mode switching */
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--blue-600);
+  font-size: inherit;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  display: inline;
+}
+.btn-link:hover:not(:disabled) {
+  color: var(--blue-800);
+  background: none;
+  border-color: transparent;
+  transform: none;
+}
+
+/* Two-column row for First Name / Last Name */
+.login-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.login-name-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 0; /* gap handled by grid parent */
+}
 
 /* Welcome panel image fills the entire panel */
 .login-welcome-panel { padding: 0; }
@@ -705,24 +805,28 @@ table .card-actions, table td > * + * { margin-top: 0; }
 }
 .login-password-wrap input {
   width: 100%;
-  padding-right: 40px;
+  padding-right: 48px; /* extra room so text doesn't run under the eye icon */
 }
 .login-password-toggle {
   position: absolute;
-  right: 4px;
+  right: 6px;
   padding: 6px;
   min-width: auto;
-  color: var(--ink-500);
+  color: var(--ink-400);
+  background: none;
+  border: none;
+}
+.login-password-toggle:hover:not(:disabled) {
+  color: var(--ink-700);
+  background: var(--canvas-2);
+  border-color: transparent;
 }
 
-/* Responsive: Stack it and hide the image panel on small screens */
+/* Responsive: stack and hide the image panel on small screens */
 @media (max-width: 768px) {
-  .login-welcome-panel {
-    display: none;
-  }
-  .login-split-card form {
-    padding: 40px 24px;
-  }
+  .login-welcome-panel { display: none; }
+  .login-split-card form { padding: 40px 28px; }
+  .login-name-row { grid-template-columns: 1fr; }
 }
 
 /* ============================================================================
@@ -1842,4 +1946,234 @@ table td:nth-child(3) {
   justify-content: center !important;
   align-items: center !important;
   width: 100% !important;
+}
+
+/* ============================================================================
+   DARK THEME PATCH for main.css
+   ─────────────────────────────────────────────────────────────────────────────
+   HOW TO USE:
+     Paste everything below this comment block at the very END of your main.css.
+     (The dark theme must come AFTER the :root block to win the CSS cascade.)
+   ============================================================================ */
+
+[data-theme="dark"] {
+  /* ── Neutrals → dark navy-grays ── */
+  --ink-900: #e8ecf2;
+  --ink-700: #bcc4d0;
+  --ink-500: #8892a4;
+  --ink-400: #606b7d;
+  --line-300: #2c3349;
+  --line-200: #232840;
+  --line-100: #1c2138;
+  --paper:    #1e2438;
+  --canvas:   #161b2c;
+  --canvas-2: #131726;
+
+  /* ── Blue ramp: darkened for hover states, avatar backgrounds, etc. ── */
+  --blue-50:  #101828;
+  --blue-100: #1a2540;
+
+  /* ── Gold ramp ── */
+  --gold-50: #2a2010;
+
+  /* ── Status background colors: dark equivalents ── */
+  --success-50: #0f2a1e;
+  --danger-50:  #2a100e;
+  --info-50:    #0f1e38;
+
+  /* ── Primary alias → lighter blue, readable on dark background ── */
+  --primary:        #5080c8;
+  --primary-hover:  #6090d8;
+  --primary-active: #3f6ab8;
+
+  /* ── Shadows: deeper for dark surfaces ── */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4),  0 1px 2px rgba(0,0,0,.25);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.3);
+  --shadow-lg: 0 16px 40px rgba(0,0,0,.65);
+
+  /* ── Focus ring: warm gold tint ── */
+  --focus-ring: 0 0 0 3px rgba(201,168,76,.45);
+}
+
+/* Nav → dark gray + gold text */
+[data-theme="dark"] .layout > nav {
+  background: #2a2a2a;
+}
+[data-theme="dark"] .layout > nav a {
+  color: rgba(201, 168, 76, 0.85);
+}
+[data-theme="dark"] .layout > nav a:hover,
+[data-theme="dark"] .layout > nav .nav-link--active {
+  color: #e0c986;
+}
+[data-theme="dark"] .layout > nav span {
+  color: rgba(201, 168, 76, 0.7);
+}
+[data-theme="dark"] .layout > nav button {
+  color: #c9a84c;
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+[data-theme="dark"] .layout > nav button:hover {
+  background: rgba(201, 168, 76, 0.22);
+}
+
+/* Footer → dark gray + gold text */
+[data-theme="dark"] footer {
+  background: #222222;
+  color: rgba(201, 168, 76, 0.7);
+}
+[data-theme="dark"] footer p { color: inherit; }
+[data-theme="dark"] footer p:first-child { color: #c9a84c; }
+[data-theme="dark"] footer p:last-child  { color: rgba(201, 168, 76, 0.55); }
+
+/* Login welcome panel → dark gray gradient + gold text */
+[data-theme="dark"] .login-welcome-panel {
+  background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #c9a84c;
+}
+
+/* Compare table column headers → dark gray (was --blue-700) */
+[data-theme="dark"] .compare-table thead th {
+  background: #2a2a2a;
+  color: #c9a84c;
+}
+[data-theme="dark"] .compare-table thead th:first-child {
+  background: var(--canvas-2);
+  color: var(--ink-500);
+}
+[data-theme="dark"] .compare-table__remove {
+  color: #c9a84c;
+  background: rgba(201, 168, 76, 0.15);
+}
+[data-theme="dark"] .compare-table__remove:hover {
+  background: rgba(201, 168, 76, 0.3);
+}
+
+/* Primary / submit buttons → gold text on blue background */
+[data-theme="dark"] button[type="submit"],
+[data-theme="dark"] .btn-primary {
+  color: #c9a84c;
+}
+
+/* Active pagination button → gold text */
+[data-theme="dark"] .pagination__btn--active {
+  color: #c9a84c;
+}
+
+/* Danger button hover → keep white (red bg, white is intentional) */
+
+/* Page & card headings → gold */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4 {
+  color: #c9a84c;
+}
+
+/* Card titles, modal titles, table section titles → gold */
+[data-theme="dark"] .card__title,
+[data-theme="dark"] .card-modal__title,
+[data-theme="dark"] .about-hero__title,
+[data-theme="dark"] .page-error__title,
+[data-theme="dark"] .infographic-section__title,
+[data-theme="dark"] .recommendations-section__title,
+[data-theme="dark"] .scores-section__title,
+[data-theme="dark"] .threshold-row__sekem,
+[data-theme="dark"] .modal-threshold-row__sekem,
+[data-theme="dark"] .rec-card__sekem,
+[data-theme="dark"] .rec-card__name,
+[data-theme="dark"] .watchlist-dept-cell__name,
+[data-theme="dark"] .users-table__name {
+  color: #c9a84c;
+}
+
+/* ── Override hardcoded rgba light-panel backgrounds ── */
+[data-theme="dark"] .home-page,
+[data-theme="dark"] .dashboard-page {
+  background: rgba(22, 27, 44, 0.92);
+  box-shadow: 0 2px 24px rgba(0,0,0,.3);
+}
+[data-theme="dark"] .layout > main {
+  background: rgba(22, 27, 44, 0.96);
+}
+[data-theme="dark"] .login-loading-overlay {
+  background: rgba(22, 27, 44, 0.88);
+}
+
+/* Watchlist status select badges → dark-mode readable */
+[data-theme="dark"] .status-interested { background-color: #3a2c00 !important; color: #e0c060 !important; }
+[data-theme="dark"] .status-applied    { background-color: #0f1e38 !important; color: #7aacf0 !important; }
+[data-theme="dark"] .status-accepted   { background-color: #0f2a1e !important; color: #5ac99a !important; }
+[data-theme="dark"] .status-rejected   { background-color: #2a100e !important; color: #f07870 !important; }
+
+/* Blue content text → darkish white/silver */
+[data-theme="dark"] a:not(.nav-brand):not(.nav-link) {
+  color: #c0c8d6;
+}
+[data-theme="dark"] a:not(.nav-brand):not(.nav-link):hover {
+  color: #d8dde6;
+}
+
+/* Card subtitles, location text, "Departments" links */
+[data-theme="dark"] .card__subtitle,
+[data-theme="dark"] .card > p:first-of-type,
+[data-theme="dark"] .card-modal__subtitle,
+[data-theme="dark"] .card-footer a,
+[data-theme="dark"] .card-modal__footer a,
+[data-theme="dark"] .card-actions summary,
+[data-theme="dark"] .card-actions a {
+  color: #c0c8d6;
+}
+
+/* Ghost / link buttons and inline text links */
+[data-theme="dark"] .btn-ghost,
+[data-theme="dark"] .btn-link {
+  color: #c0c8d6;
+}
+[data-theme="dark"] .btn-ghost:hover:not(:disabled),
+[data-theme="dark"] .btn-link:hover:not(:disabled) {
+  color: #d8dde6;
+}
+
+/* Secondary outline button text (Edit, Delete-outline, etc.) */
+[data-theme="dark"] button:not([type="submit"]):not(.btn-primary):not(.btn-danger):not(.btn-accent):not(.btn-ghost):not(.btn-link) {
+  color: #c0c8d6;
+  border-color: var(--line-300);
+}
+
+/* Tab active text stays gold/primary; inactive tabs → silverish */
+[data-theme="dark"] .home-tabs button,
+[data-theme="dark"] .dashboard-tabs button,
+[data-theme="dark"] .settings-tabs button,
+[data-theme="dark"] .dept-modal-tabs button {
+  color: #8892a4;
+}
+[data-theme="dark"] .home-tabs button:hover,
+[data-theme="dark"] .dashboard-tabs button:hover,
+[data-theme="dark"] .settings-tabs button:hover,
+[data-theme="dark"] .dept-modal-tabs button:hover {
+  color: #c0c8d6;
+}
+
+/* Threshold meta (blue small text under sekem scores) */
+[data-theme="dark"] .threshold-meta,
+[data-theme="dark"] .threshold-row__meta,
+[data-theme="dark"] .modal-threshold-row__year { color: #c0c8d6; }
+
+/* Sekem badge borders → dark-mode readable */
+[data-theme="dark"] .sekem-badge--pass { border-color: #1e5a3a; }
+[data-theme="dark"] .sekem-badge--fail { border-color: #5a2820; }
+[data-theme="dark"] .role-badge--user  { border-color: #1e5a3a; }
+
+/* Threshold editing highlight → dark */
+[data-theme="dark"] .threshold-row--editing {
+  background: var(--blue-50);
+  border-color: var(--blue-100);
+}
+
+/* Modal threshold latest row → dark */
+[data-theme="dark"] .modal-threshold-row--latest {
+  background: var(--blue-50);
+  border-color: var(--blue-100);
 }

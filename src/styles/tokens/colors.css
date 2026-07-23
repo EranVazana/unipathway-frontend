@@ -70,4 +70,77 @@
   --border-hair:    var(--line-100);
 
   --focus-ring: 0 0 0 3px rgba(47, 93, 158, 0.35);
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 3px rgba(18, 42, 79, 0.08), 0 1px 2px rgba(18, 42, 79, 0.04);
+  --shadow-md: 0 4px 12px rgba(18, 42, 79, 0.12), 0 2px 4px rgba(18, 42, 79, 0.06);
+  --shadow-lg: 0 8px 24px rgba(18, 42, 79, 0.16), 0 4px 8px rgba(18, 42, 79, 0.08);
+}
+
+/* ============================================================
+   DARK THEME
+   Applied via <html data-theme="dark">
+   - Light surfaces  → dark navy-gray
+   - Blue primary    → lighter blue (readable on dark bg)
+   - Nav/brand areas → dark gold
+   ============================================================ */
+[data-theme="dark"] {
+  /* ---- Neutrals remapped to dark navy-grays ---- */
+  --ink-900: #e8ecf2;
+  --ink-700: #bcc4d0;
+  --ink-500: #8892a4;
+  --ink-400: #606b7d;
+  --ink-300: #404b5e;
+  --line-300: #2c3349;
+  --line-200: #232840;
+  --line-100: #1c2138;
+  --paper:    #1e2438; /* card / modal surface */
+  --canvas:   #161b2c; /* page background */
+  --canvas-2: #131726; /* sunken / alt rows */
+
+  /* ---- Primary: lightened blue, visible on dark ---- */
+  --color-primary:        #5080c8;
+  --color-primary-hover:  #6090d8;
+  --color-primary-active: #3f6ab8;
+
+  /* ---- Brand/nav surfaces → dark gold ---- */
+  --surface-brand:  var(--gold-700); /* sidebar, nav bars */
+
+  /* ---- Accent gold stays, slightly warm ---- */
+  --color-accent:       var(--gold-500);
+  --color-accent-hover: var(--gold-300);
+
+  /* ---- Surfaces ---- */
+  --surface-page:   var(--canvas);
+  --surface-card:   var(--paper);
+  --surface-sunken: var(--canvas-2);
+
+  /* ---- Text ---- */
+  --text-strong:   var(--ink-900);
+  --text-body:     var(--ink-700);
+  --text-muted:    var(--ink-500);
+  --text-faint:    var(--ink-400);
+  --text-on-brand: #1a1320;
+  --text-link:     #6a9cd8;
+
+  /* ---- Borders ---- */
+  --border-default: var(--line-200);
+  --border-strong:  var(--line-300);
+  --border-hair:    var(--line-100);
+
+  /* ---- Focus ring: gold tint in dark mode ---- */
+  --focus-ring: 0 0 0 3px rgba(201, 168, 76, 0.4);
+
+  /* ---- Shadows: darker, less blue ---- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3);
+
+  /* ---- Status colours: softer on dark backgrounds ---- */
+  --success-50:  #0f2a1e;
+  --danger-50:   #2a100e;
+  --warning-50:  #2a1f08;
+  --info-50:     #0f1e38;
+  --gold-50:     #2a2010;
+  --blue-50:     #101828;
 }

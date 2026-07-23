@@ -21,14 +21,52 @@ const SUBJECT_LABELS = {
   chemistry: 'Chemistry', art: 'Art', music: 'Music'
 };
 
-const SUBJECT_ICONS = {
-  bibleStudies: '📖', literature: '📚', hebrewExpression: '✍️',
-  history: '🏛️', civics: '⚖️', mathematics: '📐', english: '🇬🇧',
-  computerScience: '💻', physics: '⚛️', psychology: '🧠',
-  arabic: '🌙', biology: '🧬', chemistry: '🧪', art: '🎨', music: '🎵'
+
+const SUBJECT_CATEGORY = {
+  bibleStudies:     { label: 'Humanities',    bg: '#ede9f6', color: '#5b3fa0' },
+  literature:       { label: 'Humanities',    bg: '#ede9f6', color: '#5b3fa0' },
+  hebrewExpression: { label: 'Humanities',    bg: '#ede9f6', color: '#5b3fa0' },
+  history:          { label: 'Social Studies', bg: '#fef3e2', color: '#92600a' },
+  civics:           { label: 'Social Studies', bg: '#fef3e2', color: '#92600a' },
+  mathematics:      { label: 'STEM',          bg: '#e8eef8', color: '#1a3a6b' },
+  computerScience:  { label: 'STEM',          bg: '#e8eef8', color: '#1a3a6b' },
+  physics:          { label: 'STEM',          bg: '#e8eef8', color: '#1a3a6b' },
+  chemistry:        { label: 'Sciences',      bg: '#e4f4f8', color: '#1e637a' },
+  biology:          { label: 'Sciences',      bg: '#e4f4f8', color: '#1e637a' },
+  english:          { label: 'Languages',     bg: '#e6f4ec', color: '#1e6b3a' },
+  arabic:           { label: 'Languages',     bg: '#e6f4ec', color: '#1e6b3a' },
+  psychology:       { label: 'Social Science', bg: '#fce8ee', color: '#a03050' },
+  art:              { label: 'Arts',          bg: '#fdeae8', color: '#a0352c' },
+  music:            { label: 'Arts',          bg: '#fdeae8', color: '#a0352c' },
 };
 
-const PSYCHOMETRIC_ICONS = { verbal: '💬', quantitative: '📊', english: '🇬🇧' };
+const PSYCHOMETRIC_CATEGORY = {
+  verbal:       { label: 'Verbal',       bg: '#ede9f6', color: '#5b3fa0' },
+  quantitative: { label: 'Quantitative', bg: '#e8eef8', color: '#1a3a6b' },
+  english:      { label: 'Language',     bg: '#e6f4ec', color: '#1e6b3a' },
+};
+
+function CategoryBadge({ subjectKey, psychometric }) {
+  const cat = psychometric
+    ? PSYCHOMETRIC_CATEGORY[subjectKey]
+    : SUBJECT_CATEGORY[subjectKey];
+  if (!cat) return null;
+  return (
+    <span style={{
+      display: 'inline-block',
+      padding: '2px 10px',
+      borderRadius: 999,
+      fontSize: 11,
+      fontWeight: 600,
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      background: cat.bg,
+      color: cat.color,
+    }}>
+      {cat.label}
+    </span>
+  );
+}
 
 const OPTIONAL_SUBJECTS = Object.keys(SUBJECT_LABELS).filter(
   (k) => !MANDATORY_SUBJECTS.includes(k)
@@ -84,10 +122,6 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    if (!isAdminView && user.userRole !== 'user') {
-      setIsLoading(false);
-      return;
-    }
     let isMounted = true;
     academicScoresService.getByUser(effectiveUserId)
       .then((data) => {
@@ -215,9 +249,6 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
     }
   }
 
-  if (!isAdminView && user.userRole !== 'user') {
-    return <p>Academic scores are only available for student accounts.</p>;
-  }
   if (isLoading) return <p>Loading academic scores...</p>;
   if (loadError) return <p role="alert">{loadError}</p>;
   if (!academicScoresId) return <p>No academic scores on record for this user.</p>;
@@ -229,13 +260,12 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
 
       {/* ── Psychometric ── */}
       <section className="scores-section">
-        <h3 className="scores-section__title">Psychometric Scores</h3>
-        <p className="scores-section__hint">Each score must be between 50 and 150.</p>
+        <h3 className="scores-section__title" style={{ textAlign: 'center' }}>Psychometric Scores</h3>
+        <p className="scores-section__hint" style={{ textAlign: 'center' }}>Each score must be between 50 and 150.</p>
         <div className="scores-card-grid scores-card-grid--centered">
           {['verbal', 'quantitative', 'english'].map((field) => (
             <div key={field} className="subject-card">
-              <span className="subject-card__name" style={{ textTransform: 'capitalize' }}>
-                  {PSYCHOMETRIC_ICONS[field] && <span className="subject-card__icon">{PSYCHOMETRIC_ICONS[field]}</span>}
+              <span className="subject-card__name" style={{ textTransform: 'capitalize', display: 'block', textAlign: 'center' }}>
                   {field}
                 </span>
               <div className="subject-card__fields">
@@ -260,8 +290,8 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
 
       {/* ── Bagrut ── */}
       <section className="scores-section">
-        <h3 className="scores-section__title">Bagrut Scores</h3>
-        <p className="scores-section__hint">Grade: 0–100. Units: at least the minimum shown.</p>
+        <h3 className="scores-section__title" style={{ textAlign: 'center' }}>Bagrut Scores</h3>
+        <p className="scores-section__hint" style={{ textAlign: 'center' }}>Grade: 0–100. Units: at least the minimum shown.</p>
         <div className="scores-card-grid">
           {Object.keys(bagrut).map((subj) => {
             const minUnits = MANDATORY_MIN_UNITS[subj] ?? 1;
@@ -270,9 +300,9 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
               <div key={subj} className={`subject-card${isOptional ? ' subject-card--optional' : ''}`}>
                 <div className="subject-card__header">
                   <div className="subject-card__title-group">
-                    <span className="subject-card__name">
-                      {SUBJECT_ICONS[subj] && <span className="subject-card__icon">{SUBJECT_ICONS[subj]}</span>}
+                    <span className="subject-card__name" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                       {subjectLabel(subj)}
+                      <CategoryBadge subjectKey={subj} />
                     </span>
                   </div>
                   {isOptional && (
@@ -326,7 +356,7 @@ export default function AcademicScoresView({ targetUserId, onSaved } = {}) {
 
       {/* ── Add Subject ── */}
       <section className="scores-section">
-        <h3 className="scores-section__title">Add a Subject</h3>
+        <h3 className="scores-section__title" style={{ textAlign: 'center' }}>Add a Subject</h3>
         <div className="add-subject-card">
           <div className="add-subject-card__row">
             <div className="subject-card__field">

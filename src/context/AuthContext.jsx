@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+// src/context/AuthContext.jsx
+
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { authService } from '../services/authService';
 
 const STORAGE_KEY = 'unipathway_user';
@@ -15,11 +17,27 @@ function readStoredUser() {
   }
 }
 
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme || 'light');
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(readStoredUser);
 
+  // Apply theme whenever the user changes (login, register, settings save, page load)
+  useEffect(() => {
+    applyTheme(user?.theme);
+  }, [user?.theme]);
+
   const login = useCallback(async (email, password) => {
     const data = await authService.login(email, password);
+    setUser(data.user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
+    return data.user;
+  }, []);
+
+  const register = useCallback(async (firstName, lastName, username, email, password) => {
+    const data = await authService.register(firstName, lastName, username, email, password);
     setUser(data.user);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
     return data.user;
@@ -29,17 +47,28 @@ export function AuthProvider({ children }) {
     try {
       await authService.logout();
     } finally {
-      // Backend is stateless on logout, but always clear local state regardless of the call's outcome
       setUser(null);
       localStorage.removeItem(STORAGE_KEY);
+      applyTheme('light');
     }
+  }, []);
+
+  // Called by BasicSettingsView after a successful settings save
+  const updateUser = useCallback((updates) => {
+    setUser((prev) => {
+      const next = { ...prev, ...updates };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
   }, []);
 
   const value = {
     user,
     isAuthenticated: Boolean(user),
     login,
-    logout
+    register,
+    logout,
+    updateUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

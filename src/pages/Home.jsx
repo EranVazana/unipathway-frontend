@@ -21,7 +21,6 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      <h1>UniPathway</h1>
 
       <nav className="home-tabs">
         {TABS.map((tab) => (

@@ -3,7 +3,7 @@ export default function Footer() {
 
   return (
     <footer>
-      <p>UniPathway — Eran Vazana &amp; Omri Hershkovich</p>
+      <p>UniPathway - Eran Vazana &amp; Omri Hershkovich</p>
       <p>{year}</p>
       <p>Your smart consultant for Israeli university admissions.</p>
     </footer>

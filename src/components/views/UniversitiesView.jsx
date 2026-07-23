@@ -94,7 +94,7 @@ export default function UniversitiesView({
   const [addFormError, setAddFormError] = useState('');
 
   // Edit state
-  const [editModalTarget, setEditModalTarget] = useState(null); // the uni being edited
+  const [editModalTarget, setEditModalTarget] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [editError, setEditError] = useState('');
@@ -293,7 +293,7 @@ export default function UniversitiesView({
                   </a>
                 )}
                 actions={
-                  <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                     {topDepartments(uni.universityId).length > 0 && (
                       <details>
                         <summary>Departments ({departmentCount(uni.universityId)} total)</summary>
@@ -304,21 +304,30 @@ export default function UniversitiesView({
                         </ul>
                       </details>
                     )}
-                    {canManage && (
-                      <button type="button" onClick={(e) => { e.stopPropagation(); startEdit(uni); }}>
-                        Edit
-                      </button>
+                    {(canManage || canDelete) && (
+                      <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                        {canManage && (
+                          <button
+                            type="button"
+                            style={{ flex: 1 }}
+                            onClick={(e) => { e.stopPropagation(); startEdit(uni); }}
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            type="button"
+                            style={{ flex: 1 }}
+                            disabled={deletingId === uni.universityId}
+                            onClick={(e) => { e.stopPropagation(); setConfirmTarget({ id: uni.universityId, label: uni.name }); }}
+                          >
+                            {deletingId === uni.universityId ? 'Deleting...' : 'Delete'}
+                          </button>
+                        )}
+                      </div>
                     )}
-                    {canDelete && (
-                      <button
-                        type="button"
-                        disabled={deletingId === uni.universityId}
-                        onClick={(e) => { e.stopPropagation(); setConfirmTarget({ id: uni.universityId, label: uni.name }); }}
-                      >
-                        {deletingId === uni.universityId ? 'Deleting...' : 'Delete'}
-                      </button>
-                    )}
-                  </>
+                  </div>
                 }
               />
             );

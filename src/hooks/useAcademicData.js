@@ -1,3 +1,5 @@
+// src/hooks/useAcademicData.js
+
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -21,21 +23,17 @@ export function useAcademicData() {
     setIsLoading(true);
     setError('');
     try {
-      const [departmentsData, universitiesData, thresholdsData] = await Promise.all([
+      const [departmentsData, universitiesData, thresholdsData, watchlistData] = await Promise.all([
         departmentsService.getAll(),
         universitiesService.getAll(),
-        admissionThresholdsService.getAll()
+        admissionThresholdsService.getAll(),
+        watchlistService.getByUser(user.userId)
       ]);
-
-      // Watchlist is only available for 'user' role accounts
-      const watchlistData = user.userRole === 'user'
-        ? await watchlistService.getByUser(user.userId)
-        : [];
 
       setDepartments(departmentsData);
       setUniversities(universitiesData);
-      setWatchlist(watchlistData);
       setThresholds(thresholdsData);
+      setWatchlist(watchlistData);
     } catch (err) {
       setError(err.message || 'Failed to load data.');
     } finally {
@@ -48,10 +46,9 @@ export function useAcademicData() {
     if (user?.userId) loadAll();
   }, [user, loadAll]);
 
-  // Re-fetch watchlist every time the user navigates to /dashboard,
-  // so academic score changes saved in Settings are always reflected immediately.
+  // Re-fetch watchlist every time the user navigates to /dashboard
   useEffect(() => {
-    if (!user?.userId || user.userRole !== 'user' || location.pathname !== '/dashboard') return;
+    if (!user?.userId || location.pathname !== '/dashboard') return;
     async function refresh() {
       try {
         const updated = await watchlistService.getByUser(user.userId);
@@ -71,7 +68,6 @@ export function useAcademicData() {
     return departments.find((d) => d.departmentId === departmentId)?.majorName || 'Unknown department';
   }
 
-  // A department can have thresholds from multiple years; resolve to the most recent one.
   function latestThreshold(departmentId) {
     const matches = thresholds.filter((t) => t.departmentId === departmentId);
     if (matches.length === 0) return null;
@@ -83,7 +79,6 @@ export function useAcademicData() {
   }
 
   async function refreshWatchlist() {
-    if (user.userRole !== 'user') return;
     try {
       const updated = await watchlistService.getByUser(user.userId);
       setWatchlist(updated);

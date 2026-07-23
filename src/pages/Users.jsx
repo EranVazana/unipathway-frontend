@@ -185,8 +185,6 @@ export default function Users() {
 
   return (
     <div className="users-page">
-      <h1>Users</h1>
-
       {deleteError && <p role="alert">{deleteError}</p>}
 
       {editTarget && (
