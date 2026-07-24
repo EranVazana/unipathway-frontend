@@ -1,4 +1,4 @@
-# UniPathway — Frontend
+# UniPathway - Frontend
 
 A React.js frontend for UniPathway, a smart academic consultant platform that helps Israeli students make confident university decisions by comparing their Sekem scores against real admission thresholds.
 
@@ -11,7 +11,7 @@ Built as part of the Web Development Environments course at Ben-Gurion Universit
 ## Prerequisites
 
 - Node.js (v16 or higher)
-- The UniPathway backend server running locally on port 3000 (Assignment 2)
+- The UniPathway backend server running locally on port 3000 
 
 ---
 
@@ -113,7 +113,7 @@ src/
 ├── pages/          # Route views (Login, Home, Dashboard, Settings, Users, About)
 ├── services/       # API communication (one file per resource)
 ├── context/        # Auth context (user state, login/logout actions)
-├── hooks/          # useAcademicData — shared data hook for Dashboard and Home
+├── hooks/          # useAcademicData - shared data hook for Dashboard and Home
 ├── styles/         # CSS design system (variables, dark mode, global tokens)
 └── App.js          # Main entry point, routing, and protected route setup
 ```
